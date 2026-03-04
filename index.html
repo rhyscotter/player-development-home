@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Player Development</title>
+
+<style>
+:root{
+  --bg:#000;
+  --card:#111;
+  --border:#1e1e1e;
+  --text:#fff;
+  --muted:#8a8a8a;
+
+  /* ✅ DEFAULT PREVIEW = CHERRYBROOK (RED) */
+  --accent:#C8102E;
+  --accent2:#FF4B5C;
+  --clubGlow: rgba(200,16,46,.20);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-serif}
+
+/* ---------- stage / background ---------- */
+.stage{
+  min-height:100vh;
+  padding:22px;
+  background:
+    radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
+    radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
+    linear-gradient(180deg,#000 0%,#050505 100%);
+  position:relative;
+  overflow:hidden;
+}
+.stage::before{
+  content:"";
+  position:absolute;inset:-40% -20%;
+  transform:rotate(-14deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
+  opacity:.18;
+  pointer-events:none;
+}
+.stage::after{
+  content:"";
+  position:absolute;inset:-30%;
+  background:
+    radial-gradient(600px 420px at 15% 75%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(680px 460px at 85% 35%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 70%);
+  opacity:.65;
+  pointer-events:none;
+}
+
+/* ---------- wrapper ---------- */
+.wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
+
+/* ---------- header ---------- */
+.topRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+}
+.teamName{
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:48px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  line-height:1;
+}
+.sub{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.4;
+  max-width:560px;
+}
+.chips{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.chip{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.86);
+  cursor:pointer;
+  transition:.18s ease;
+  user-select:none;
+}
+.chip:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.20);
+  background:rgba(255,255,255,.06);
+}
+
+/* ---------- hero banner ---------- */
+.mode{
+  margin-top:18px;
+  padding:14px;
+  border-radius:18px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  position:relative;overflow:hidden;
+  animation:modeGlow 2.4s ease-in-out infinite;
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 50px color-mix(in srgb, var(--accent2) 25%, transparent);
+}
+.mode::before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,.35), rgba(255,255,255,0));
+  transform:translateX(-70%);
+  animation:sweep 2.8s linear infinite;
+  opacity:.9;
+  pointer-events:none;
+}
+@keyframes sweep{0%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+@keyframes modeGlow{0%{filter:brightness(1)}50%{filter:brightness(1.12)}100%{filter:brightness(1)}}
+.modeTitle{
+  font-family:Impact,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-size:18px;
+  position:relative;z-index:2;
+}
+.modeSub{
+  margin-top:4px;
+  color:rgba(255,255,255,.88);
+  font-size:13px;
+  position:relative;z-index:2;
+}
+.energyBar{
+  height:3px;border-radius:999px;
+  margin-top:10px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  animation:energyPulse 1.8s ease-in-out infinite;
+  position:relative;z-index:2
+}
+@keyframes energyPulse{0%{opacity:.6;transform:scaleX(.98)}50%{opacity:1;transform:scaleX(1)}100%{opacity:.6;transform:scaleX(.98)}}
+
+/* ---------- main cards ---------- */
+.grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap:14px;
+}
+@media (max-width: 880px){
+  .grid{grid-template-columns:1fr}
+  .chips{justify-content:flex-start}
+}
+
+.card{
+  background:rgba(17,17,17,.85);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+  transition:.18s ease;
+}
+.card::before{
+  content:"";
+  position:absolute;inset:-50% -20%;
+  transform:rotate(-12deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
+  opacity:.28;
+  pointer-events:none;
+}
+.card:hover{
+  background:rgba(26,26,26,.9);
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,.16);
+}
+
+.sectionTitle{
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:26px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  position:relative;
+  padding-bottom:6px;
+  margin:0;
+}
+.sectionTitle::after{
+  content:"";
+  position:absolute;
+  left:0; bottom:0;
+  height:4px; width:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:.22s ease;
+}
+.card:hover .sectionTitle::after{transform:scaleX(1)}
+
+.smallSub{
+  margin-top:10px;
+  color:rgba(255,255,255,.72);
+  font-size:13px;
+  line-height:1.45;
+  position:relative;z-index:2;
+}
+
+/* ---------- big buttons ---------- */
+.btnStack{margin-top:14px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
+.bigBtn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 16px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(700px 240px at 30% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 65%),
+    rgba(255,255,255,.04);
+  cursor:pointer;
+  transition:.18s ease;
+  text-align:left;
+}
+.bigBtn:hover{
+  transform:translateY(-2px);
+  border-color:color-mix(in srgb, var(--accent) 45%, rgba(255,255,255,.18));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.06),
+    0 0 22px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.bigBtn:active{transform:translateY(-1px) scale(.995)}
+
+.btnLeft{display:flex;gap:12px;align-items:center}
+.icon{
+  width:42px;height:42px;border-radius:14px;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 10px 26px rgba(0,0,0,.35);
+}
+.icon svg{width:22px;height:22px;color:#fff;opacity:.92}
+.btnText{display:flex;flex-direction:column;gap:2px}
+.btnTitle{
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  font-size:22px;
+  line-height:1.05;
+  color:#fff; /* ✅ force white */
+}
+.btnSub{color:rgba(255,255,255,.72);font-size:13px;line-height:1.35}
+.chev{
+  font-family:Impact,sans-serif;
+  font-size:26px;
+  color:rgba(255,255,255,.80);
+  opacity:.9;
+}
+
+/* ---------- overview: search + last updated + recent updates ---------- */
+.overviewBlock{margin-top:14px;position:relative;z-index:2}
+.labelRow{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.miniLabel{
+  font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(255,255,255,.70)
+}
+.lastUpdated{
+  font-size:12px;
+  color:rgba(255,255,255,.80);
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+}
+.pip{
+  width:8px;height:8px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  box-shadow:0 0 12px var(--clubGlow);
+}
+
+.searchWrap{display:flex;gap:10px;align-items:center}
+.search{
+  flex:1;
+  padding:12px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.92);
+  outline:none;
+  transition:.18s ease;
+}
+.search:focus{
+  border-color:color-mix(in srgb, var(--accent) 50%, rgba(255,255,255,.18));
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.search::placeholder{color:rgba(255,255,255,.45)}
+.searchBtn{
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.88);
+  cursor:pointer;
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  font-size:11px;
+  transition:.18s ease;
+}
+.searchBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);
+}
+
+.results{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.resultItem{
+  padding:10px 12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.03);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.rName{
+  font-family:Impact,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  font-size:16px;
+  color:#fff; /* ✅ force white */
+}
+.rMeta{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
+
+/* Recent updates list */
+.updates{
+  margin-top:14px;
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:12px;
+  position:relative;z-index:2;
+}
+.updatesTitle{
+  font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(255,255,255,.70);
+}
+.updateList{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.updateItem{
+  padding:10px 12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.03);
+  display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
+}
+.uLeft{min-width:0}
+.uTitle{
+  font-family:Impact,sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.55px;
+  font-size:15px;
+  color:#fff;
+}
+.uSub{margin-top:2px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.35}
+.uWhen{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
+
+/* ---------- right column notes ---------- */
+.noteList{margin:10px 0 0 18px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.5;position:relative;z-index:2}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;
+  left:50%; bottom:18px;
+  transform:translateX(-50%);
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(17,17,17,.90);
+  color:rgba(255,255,255,.90);
+  font-size:13px;
+  opacity:0;
+  pointer-events:none;
+  transition:.18s ease;
+  z-index:9999;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(-2px)}
+</style>
+</head>
+
+<body>
+<div class="stage">
+  <div class="wrap">
+    <div class="topRow">
+      <div>
+        <div class="teamName">Player Development</div>
+        <div class="sub">
+          Homepage for development tools. Cherrybrook red preview theme. Two buttons are placeholders (no links yet).
+        </div>
+      </div>
+
+      <div class="chips">
+        <button class="chip" id="motionBtn" type="button">Toggle Motion</button>
+      </div>
+    </div>
+
+    <div class="mode" id="mode">
+      <div class="modeTitle">Development Mode</div>
+      <div class="modeSub">Pick a module — evaluation or IDP — to start building player profiles.</div>
+      <div class="energyBar"></div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: main actions -->
+      <div class="card">
+        <h2 class="sectionTitle">Quick Access</h2>
+        <div class="smallSub">
+          Use this as your home “title page” and later wire each module into your Wix iframe routing.
+        </div>
+
+        <div class="btnStack">
+          <button class="bigBtn" type="button" id="btnEval" aria-label="Player Evaluation">
+            <div class="btnLeft">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
+                  <path d="M9 8h6M9 12h6M9 16h4"/>
+                </svg>
+              </div>
+              <div class="btnText">
+                <div class="btnTitle">Player Evaluation</div>
+                <div class="btnSub">Ratings • coach notes • KPIs • match feedback</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">›</div>
+          </button>
+
+          <button class="bigBtn" type="button" id="btnIdp" aria-label="Individual Player Development Plan">
+            <div class="btnLeft">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M7 7h10v10H7z" opacity=".85"/>
+                  <path d="M12 3v18M3 12h18"/>
+                </svg>
+              </div>
+              <div class="btnText">
+                <div class="btnTitle">Individual Development Plan</div>
+                <div class="btnSub">Goals • action steps • weekly homework • review dates</div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">›</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: overview (UPDATED per request) -->
+      <div class="card">
+        <h2 class="sectionTitle">Overview</h2>
+        <div class="smallSub">
+          Player search + last updated, with only the 3 most recent updates.
+        </div>
+
+        <div class="overviewBlock">
+          <div class="labelRow">
+            <div class="miniLabel">Player Search</div>
+            <div class="lastUpdated" title="Last updated time">
+              <span class="pip" aria-hidden="true"></span>
+              <span id="lastUpdatedText">Last updated —</span>
+            </div>
+          </div>
+
+          <div class="searchWrap">
+            <input id="playerSearch" class="search" type="search" placeholder="Search player name…" autocomplete="off" />
+            <button id="clearBtn" class="searchBtn" type="button">Clear</button>
+          </div>
+
+          <div class="results" id="results"></div>
+
+          <!-- ✅ NEW: Recent updates (3 only) -->
+          <div class="updates">
+            <div class="updatesTitle">Recent Updates</div>
+            <div class="updateList" id="updateList"></div>
+          </div>
+        </div>
+
+        <ul class="noteList">
+          <li>Search is demo data for preview (wire to Wix later).</li>
+          <li>Updates show the 3 most recent only.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* UI behaviors: motion toggle + button toasts + player search + recent updates */
+
+const toast = document.getElementById("toast");
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("on");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> toast.classList.remove("on"), 1100);
+}
+
+/* Motion toggle */
+let motionOn = true;
+document.getElementById("motionBtn").addEventListener("click", () => {
+  motionOn = !motionOn;
+  const mode = document.getElementById("mode");
+  if (!motionOn){
+    document.body.setAttribute("data-motion","off");
+    mode.style.animation = "none";
+    showToast("Motion: Off");
+  } else {
+    document.body.removeAttribute("data-motion");
+    mode.style.animation = "";
+    showToast("Motion: On");
+  }
+});
+
+const style = document.createElement("style");
+style.textContent = `
+  body[data-motion="off"] .mode::before{ animation:none !important; opacity:.25 !important; }
+  body[data-motion="off"] .energyBar{ animation:none !important; opacity:.9 !important; transform:none !important; }
+`;
+document.head.appendChild(style);
+
+/* Buttons: placeholder feedback */
+document.getElementById("btnEval").addEventListener("click", ()=> showToast("Player Evaluation (placeholder)"));
+document.getElementById("btnIdp").addEventListener("click",  ()=> showToast("IDP (placeholder)"));
+
+/* Last updated (preview: page load time) */
+const lastUpdatedText = document.getElementById("lastUpdatedText");
+(function setLastUpdated(){
+  const d = new Date();
+  const fmt = new Intl.DateTimeFormat(undefined, {
+    weekday:"short", month:"short", day:"numeric",
+    hour:"numeric", minute:"2-digit"
+  }).format(d);
+  lastUpdatedText.textContent = `Last updated ${fmt}`;
+})();
+
+/* Demo players (replace later) */
+const PLAYERS = [
+  { name:"Lucy", team:"U9", updated:"2d" },
+  { name:"Liv", team:"U9", updated:"5d" },
+  { name:"Grace", team:"U9", updated:"1w" },
+  { name:"Willa", team:"U9", updated:"3d" },
+  { name:"Scarlett", team:"U9", updated:"6d" },
+  { name:"Hannah", team:"U9", updated:"4d" },
+  { name:"Marcella", team:"U9", updated:"2w" },
+  { name:"Addison", team:"U9", updated:"1w" }
+];
+
+const resultsEl = document.getElementById("results");
+const searchEl = document.getElementById("playerSearch");
+const clearBtn = document.getElementById("clearBtn");
+
+function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
+
+function renderResults(list){
+  resultsEl.innerHTML = "";
+  if (!list.length){
+    const empty = document.createElement("div");
+    empty.className = "resultItem";
+    empty.innerHTML = `<div class="rName">No matches</div><div class="rMeta">—</div>`;
+    resultsEl.appendChild(empty);
+    return;
+  }
+
+  list.slice(0,6).forEach(p => {
+    const row = document.createElement("div");
+    row.className = "resultItem";
+    row.style.cursor = "pointer";
+    row.title = "Placeholder click (wire to player page later)";
+    row.addEventListener("click", () => showToast(`Open player: ${p.name} (placeholder)`));
+
+    row.innerHTML = `
+      <div>
+        <div class="rName">${safe(p.name)}</div>
+        <div class="btnSub" style="margin-top:2px">${safe(p.team)} • Last activity: ${safe(p.updated)}</div>
+      </div>
+      <div class="rMeta">View</div>
+    `;
+    resultsEl.appendChild(row);
+  });
+}
+
+function applySearch(){
+  const q = String(searchEl.value || "").trim().toLowerCase();
+  if (!q){ renderResults(PLAYERS); return; }
+  renderResults(PLAYERS.filter(p => p.name.toLowerCase().includes(q)));
+}
+
+searchEl.addEventListener("input", applySearch);
+clearBtn.addEventListener("click", () => {
+  searchEl.value = "";
+  searchEl.focus();
+  applySearch();
+  showToast("Search cleared");
+});
+renderResults(PLAYERS);
+
+/* ✅ Recent Updates (show ONLY 3 most recent) */
+const UPDATES = [
+  { title:"Evaluation template updated", sub:"New technical + mentality bands added.", when:"Today" },
+  { title:"IDP structure refreshed", sub:"Weekly focus + review date fields.", when:"2d" },
+  { title:"New player added", sub:"Profile created and ready for first eval.", when:"5d" },
+  { title:"Old item (not shown)", sub:"This should not appear in top 3.", when:"2w" }
+];
+
+const updateListEl = document.getElementById("updateList");
+function renderUpdates(){
+  updateListEl.innerHTML = "";
+  UPDATES.slice(0,3).forEach(u => {
+    const item = document.createElement("div");
+    item.className = "updateItem";
+    item.innerHTML = `
+      <div class="uLeft">
+        <div class="uTitle">${safe(u.title)}</div>
+        <div class="uSub">${safe(u.sub)}</div>
+      </div>
+      <div class="uWhen">${safe(u.when)}</div>
+    `;
+    updateListEl.appendChild(item);
+  });
+}
+renderUpdates();
+</script>
+</body>
+</html>
