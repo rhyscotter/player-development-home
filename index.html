@@ -6,150 +6,67 @@
 <title>Player Development</title>
 
 <style>
-:root{
-  --bg:#000;
-  --card:#111;
-  --border:#1e1e1e;
-  --text:#fff;
-  --muted:#8a8a8a;
 
-  /* default (will be overridden by Wix postMessage) */
+:root{
   --accent:#7B2EFF;
   --accent2:#B266FF;
   --clubGlow: rgba(123,46,255,.18);
 }
 
 *{box-sizing:border-box}
-body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-serif}
 
-/* stage */
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:Arial,sans-serif
+}
+
 .stage{
   min-height:100vh;
   padding:22px;
   background:
-    radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
-    radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
-    linear-gradient(180deg,#000 0%,#050505 100%);
-  position:relative;
-  overflow:hidden;
-}
-.stage::before{
-  content:"";
-  position:absolute;inset:-40% -20%;
-  transform:rotate(-14deg);
-  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
-  opacity:.18;
-  pointer-events:none;
-}
-.stage::after{
-  content:"";
-  position:absolute;inset:-30%;
-  background:
-    radial-gradient(600px 420px at 15% 75%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-    radial-gradient(680px 460px at 85% 35%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 70%);
-  opacity:.65;
-  pointer-events:none;
+  radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
+  radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
+  linear-gradient(180deg,#000 0%,#050505 100%);
 }
 
-.wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
-
-/* header */
-.topRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:16px;
+.wrap{
+  max-width:980px;
+  margin:0 auto;
 }
+
 .teamName{
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
   font-size:48px;
   text-transform:uppercase;
   letter-spacing:1px;
-  line-height:1;
 }
-.sub{
-  margin-top:8px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.4;
-  max-width:560px;
-}
-.chips{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.chip{
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  padding:8px 10px;
+
+.titleLine{
+  height:4px;
+  width:100%;
+  max-width:420px;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.04);
-  color:rgba(255,255,255,.86);
-  cursor:pointer;
-  transition:.18s ease;
-  user-select:none;
-}
-.chip:hover{
-  transform:translateY(-1px);
-  border-color:rgba(255,255,255,.20);
-  background:rgba(255,255,255,.06);
+  margin-top:6px;
+  background:linear-gradient(90deg,var(--accent),transparent);
 }
 
-/* hero banner */
-.mode{
-  margin-top:18px;
-  padding:14px;
-  border-radius:18px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  position:relative;overflow:hidden;
-  animation:modeGlow 2.4s ease-in-out infinite;
-  box-shadow:
-    0 0 12px color-mix(in srgb, var(--accent) 35%, transparent),
-    0 0 50px color-mix(in srgb, var(--accent2) 25%, transparent);
-}
-.mode::before{
-  content:"";
-  position:absolute;inset:0;
-  background:linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,.35), rgba(255,255,255,0));
-  transform:translateX(-70%);
-  animation:sweep 2.8s linear infinite;
-  opacity:.9;
-  pointer-events:none;
-}
-@keyframes sweep{0%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
-@keyframes modeGlow{0%{filter:brightness(1)}50%{filter:brightness(1.12)}100%{filter:brightness(1)}}
-.modeTitle{
-  font-family:Impact,sans-serif;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  font-size:18px;
-  position:relative;z-index:2;
-}
-.modeSub{
-  margin-top:4px;
-  color:rgba(255,255,255,.88);
-  font-size:13px;
-  position:relative;z-index:2;
-}
-.energyBar{
-  height:3px;border-radius:999px;
+.sub{
   margin-top:10px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  animation:energyPulse 1.8s ease-in-out infinite;
-  position:relative;z-index:2
+  color:rgba(255,255,255,.75);
+  font-size:14px;
 }
-@keyframes energyPulse{0%{opacity:.6;transform:scaleX(.98)}50%{opacity:1;transform:scaleX(1)}100%{opacity:.6;transform:scaleX(.98)}}
 
-/* main cards */
 .grid{
-  margin-top:18px;
+  margin-top:24px;
   display:grid;
-  grid-template-columns: 1.2fr .8fr;
+  grid-template-columns:1.2fr .8fr;
   gap:14px;
 }
-@media (max-width: 880px){
+
+@media (max-width:880px){
   .grid{grid-template-columns:1fr}
-  .chips{justify-content:flex-start}
 }
 
 .card{
@@ -157,22 +74,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   border:1px solid rgba(255,255,255,.10);
   border-radius:16px;
   padding:16px;
-  position:relative;
-  overflow:hidden;
-  transition:.18s ease;
-}
-.card::before{
-  content:"";
-  position:absolute;inset:-50% -20%;
-  transform:rotate(-12deg);
-  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
-  opacity:.28;
-  pointer-events:none;
-}
-.card:hover{
-  background:rgba(26,26,26,.9);
-  transform:translateY(-2px);
-  border-color:rgba(255,255,255,.16);
 }
 
 .sectionTitle{
@@ -182,564 +83,301 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   letter-spacing:.6px;
   position:relative;
   padding-bottom:6px;
-  margin:0;
 }
+
 .sectionTitle::after{
   content:"";
   position:absolute;
-  left:0; bottom:0;
-  height:4px; width:100%;
+  left:0;
+  bottom:0;
+  height:4px;
+  width:100%;
   border-radius:999px;
   background:linear-gradient(90deg,var(--accent),transparent);
-  transform:scaleX(0);
-  transform-origin:left;
-  transition:.22s ease;
 }
-.card:hover .sectionTitle::after{transform:scaleX(1)}
 
 .smallSub{
-  margin-top:10px;
-  color:rgba(255,255,255,.72);
+  margin-top:8px;
+  color:rgba(255,255,255,.7);
   font-size:13px;
-  line-height:1.45;
-  position:relative;z-index:2;
 }
 
-/* big buttons */
-.btnStack{margin-top:14px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
-.bigBtn{
-  width:100%;
+/* BUTTON STACK */
+
+.btnStack{
+  margin-top:14px;
   display:flex;
-  align-items:center;
+  flex-direction:column;
+  gap:12px
+}
+
+.bigBtn{
+  display:flex;
   justify-content:space-between;
-  gap:12px;
-  padding:16px 16px;
+  align-items:center;
+  padding:16px;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.12);
-  background:
-    radial-gradient(700px 240px at 30% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 65%),
-    rgba(255,255,255,.04);
+  background:rgba(255,255,255,.04);
   cursor:pointer;
-  transition:.18s ease;
-  text-align:left;
+  transition:.18s;
 }
+
 .bigBtn:hover{
-  transform:translateY(-2px);
-  border-color:color-mix(in srgb, var(--accent) 45%, rgba(255,255,255,.18));
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.06),
-    0 0 22px color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color:var(--accent);
+  box-shadow:0 0 18px var(--clubGlow);
 }
-.bigBtn:active{transform:translateY(-1px) scale(.995)}
-.btnLeft{display:flex;gap:12px;align-items:center}
-.icon{
-  width:42px;height:42px;border-radius:14px;
-  display:grid;place-items:center;
-  background:rgba(0,0,0,.28);
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:0 10px 26px rgba(0,0,0,.35);
-}
-.icon svg{width:22px;height:22px;color:#fff;opacity:.92}
-.btnText{display:flex;flex-direction:column;gap:2px}
+
+/* FORCE BUTTON TITLES WHITE */
+
 .btnTitle{
-  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-family:Impact,sans-serif;
   text-transform:uppercase;
-  letter-spacing:.7px;
   font-size:22px;
-  line-height:1.05;
   color:#fff;
 }
-.btnSub{color:rgba(255,255,255,.72);font-size:13px;line-height:1.35}
+
+.btnSub{
+  font-size:13px;
+  color:rgba(255,255,255,.7);
+}
+
 .chev{
   font-family:Impact,sans-serif;
   font-size:26px;
-  color:rgba(255,255,255,.80);
-  opacity:.9;
 }
 
-/* overview: search + last updated + recent updates */
-.overviewBlock{margin-top:14px;position:relative;z-index:2}
-.labelRow{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;
-  margin-bottom:8px;
-}
-.miniLabel{
-  font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
-  color:rgba(255,255,255,.70)
-}
-.lastUpdated{
-  font-size:12px;
-  color:rgba(255,255,255,.80);
-  display:flex;align-items:center;gap:8px;
-  white-space:nowrap;
-}
-.pip{
-  width:8px;height:8px;border-radius:999px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  box-shadow:0 0 12px var(--clubGlow);
-}
-
-.searchWrap{display:flex;gap:10px;align-items:center}
 .search{
-  flex:1;
-  padding:12px 12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.92);
-  outline:none;
-  transition:.18s ease;
-}
-.search:focus{
-  border-color:color-mix(in srgb, var(--accent) 50%, rgba(255,255,255,.18));
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-.search::placeholder{color:rgba(255,255,255,.45)}
-.searchBtn{
-  padding:12px 12px;
-  border-radius:14px;
+  width:100%;
+  padding:12px;
+  border-radius:12px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(255,255,255,.04);
-  color:rgba(255,255,255,.88);
-  cursor:pointer;
-  font-weight:900;
-  letter-spacing:.4px;
-  text-transform:uppercase;
-  font-size:11px;
-  transition:.18s ease;
-}
-.searchBtn:hover{
-  transform:translateY(-1px);
-  border-color:rgba(255,255,255,.18);
-  background:rgba(255,255,255,.06);
+  color:#fff;
+  margin-top:10px;
 }
 
-.results{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.results{
+  margin-top:10px;
+}
+
 .resultItem{
-  padding:10px 12px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.10);
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.03);
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:6px;
 }
+
 .rName{
-  font-family:Impact,sans-serif;
+  font-family:Impact;
   text-transform:uppercase;
-  letter-spacing:.6px;
-  font-size:16px;
-  color:#fff;
-}
-.rMeta{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
-.empty{
-  padding:12px 12px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.03);
-  color:rgba(255,255,255,.72);
-  font-size:13px;
 }
 
 .updates{
   margin-top:14px;
-  border-top:1px solid rgba(255,255,255,.10);
-  padding-top:12px;
-  position:relative;z-index:2;
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:10px;
 }
-.updatesTitle{
-  font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
-  color:rgba(255,255,255,.70);
-}
-.updateList{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.updateItem{
-  padding:10px 12px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.03);
-  display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
-}
-.uLeft{min-width:0}
-.uTitle{
-  font-family:Impact,sans-serif;
-  text-transform:uppercase;
-  letter-spacing:.55px;
-  font-size:15px;
-  color:#fff;
-}
-.uSub{margin-top:2px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.35}
-.uWhen{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
 
-/* toast */
-.toast{
-  position:fixed;
-  left:50%; bottom:18px;
-  transform:translateX(-50%);
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(17,17,17,.90);
-  color:rgba(255,255,255,.90);
-  font-size:13px;
-  opacity:0;
-  pointer-events:none;
-  transition:.18s ease;
-  z-index:9999;
-  box-shadow:0 18px 50px rgba(0,0,0,.55);
+.updateItem{
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  margin-bottom:6px;
 }
-.toast.on{opacity:1;transform:translateX(-50%) translateY(-2px)}
+
 </style>
 </head>
 
 <body>
+
 <div class="stage">
-  <div class="wrap">
-    <div class="topRow">
-      <div>
-        <div class="teamName" id="pageTitle">Player Development</div>
-        <div class="sub" id="pageSub">Loading…</div>
-      </div>
+<div class="wrap">
 
-      <div class="chips">
-        <button class="chip" id="motionBtn" type="button">Toggle Motion</button>
-      </div>
-    </div>
+<div class="teamName" id="pageTitle">Player Development</div>
+<div class="titleLine"></div>
+<div class="sub" id="coachName">Loading coach…</div>
 
-    <div class="mode" id="mode">
-      <div class="modeTitle" id="modeTitle">Development Mode</div>
-      <div class="modeSub" id="modeSub">—</div>
-      <div class="energyBar"></div>
-    </div>
+<div class="grid">
 
-    <div class="grid">
-      <div class="card">
-        <h2 class="sectionTitle">Quick Access</h2>
-        <div class="smallSub" id="quickSub">—</div>
+<div class="card">
 
-        <div class="btnStack">
-          <button class="bigBtn" type="button" id="btnEval" data-action="player-evaluation" aria-label="Player Evaluation">
-            <div class="btnLeft">
-              <div class="icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-                  <path d="M9 8h6M9 12h6M9 16h4"/>
-                </svg>
-              </div>
-              <div class="btnText">
-                <div class="btnTitle">Player Evaluation</div>
-                <div class="btnSub" id="evalSub">—</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">›</div>
-          </button>
+<h2 class="sectionTitle">Quick Access</h2>
+<div class="smallSub">Select a development tool.</div>
 
-          <button class="bigBtn" type="button" id="btnIdp" data-action="idp" aria-label="Individual Player Development Plan">
-            <div class="btnLeft">
-              <div class="icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M7 7h10v10H7z" opacity=".85"/>
-                  <path d="M12 3v18M3 12h18"/>
-                </svg>
-              </div>
-              <div class="btnText">
-                <div class="btnTitle">Individual Development Plan</div>
-                <div class="btnSub" id="idpSub">—</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">›</div>
-          </button>
-        </div>
-      </div>
+<div class="btnStack">
 
-      <div class="card">
-        <h2 class="sectionTitle">Overview</h2>
-        <div class="smallSub" id="overviewSub">—</div>
+<button class="bigBtn" id="btnEval">
+<div>
+<div class="btnTitle">Player Evaluation</div>
+<div class="btnSub">Ratings • notes • match feedback</div>
+</div>
+<div class="chev">›</div>
+</button>
 
-        <div class="overviewBlock">
-          <div class="labelRow">
-            <div class="miniLabel">Player Search</div>
-            <div class="lastUpdated" title="Last updated time">
-              <span class="pip" aria-hidden="true"></span>
-              <span id="lastUpdatedText">Last updated —</span>
-            </div>
-          </div>
+<button class="bigBtn" id="btnIdp">
+<div>
+<div class="btnTitle">Individual Development Plan</div>
+<div class="btnSub">Goals • progress • training focus</div>
+</div>
+<div class="chev">›</div>
+</button>
 
-          <div class="searchWrap">
-            <input id="playerSearch" class="search" type="search" placeholder="Search player name…" autocomplete="off" />
-            <button id="clearBtn" class="searchBtn" type="button">Clear</button>
-          </div>
-
-          <div class="results" id="results">
-            <div class="empty" id="resultsEmpty">No players loaded</div>
-          </div>
-
-          <div class="updates">
-            <div class="updatesTitle">Recent Updates</div>
-            <div class="updateList" id="updateList">
-              <div class="empty" id="updatesEmpty">No updates loaded</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<div class="card">
+
+<h2 class="sectionTitle">Overview</h2>
+
+<input id="playerSearch" class="search" placeholder="Search player name"/>
+
+<div class="results" id="results"></div>
+
+<div class="updates">
+<div style="font-weight:bold;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Recent Updates</div>
+<div id="updateList"></div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
 
 <script>
-/* ---------- Utilities ---------- */
-function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
-function showToast(msg){
-  const toast = document.getElementById("toast");
-  toast.textContent = msg;
-  toast.classList.add("on");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=> toast.classList.remove("on"), 1100);
-}
-function formatLastUpdated(v){
-  if (!v) return "Last updated —";
-  const d = new Date(v);
-  if (isNaN(d.getTime())) return "Last updated —";
-  const fmt = new Intl.DateTimeFormat(undefined, {
-    weekday:"short", month:"short", day:"numeric",
-    hour:"numeric", minute:"2-digit"
-  }).format(d);
-  return "Last updated " + fmt;
-}
 
-/* ---------- Theme ---------- */
+/* THEMING */
+
 const CLUB_THEMES = {
-  default:     { accent:"#7B2EFF", accent2:"#B266FF", bgGlow:"rgba(123,46,255,.18)" },
-  cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", bgGlow:"rgba(200,16,46,.20)" },
-  rumson:      { accent:"#FFFFFF", accent2:"#BDBDBD", bgGlow:"rgba(255,255,255,.10)" },
-  monmouth:    { accent:"#00E5FF", accent2:"#00A3FF", bgGlow:"rgba(0,229,255,.18)" }
-};
-
-function applyThemeFromPayload(payload){
-  const slug = String(payload?.clubSlug || "default").trim().toLowerCase();
-  const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
-
-  const t = payload?.theme || null;
-
-  const rawAccent  = (t?.accent ?? t?.primary ?? "");
-  const rawAccent2 = (t?.accent2 ?? t?.secondary ?? "");
-  const rawGlow    = (t?.glow ?? t?.clubGlow ?? t?.bgGlow ?? "");
-
-  const accent  = String(rawAccent || "").trim()  || fallback.accent;
-  const accent2 = String(rawAccent2 || "").trim() || fallback.accent2 || accent;
-  const glow    = String(rawGlow || "").trim()    || fallback.bgGlow;
-
-  const r = document.documentElement.style;
-  r.setProperty("--accent", accent);
-  r.setProperty("--accent2", accent2);
-  r.setProperty("--clubGlow", glow);
-
-  console.log("🎨 PLAYER DEV THEME SET:", { clubSlug: slug, accent, accent2, glow, rawTheme: t });
+default:{accent:"#7B2EFF",accent2:"#B266FF",bgGlow:"rgba(123,46,255,.18)"},
+cherrybrook:{accent:"#C8102E",accent2:"#FF4B5C",bgGlow:"rgba(200,16,46,.20)"}
 }
 
-/* ---------- Data Rendering (populated by Wix) ---------- */
-let PLAYERS = [];   // [{ id, name, team, updated }]
-let UPDATES = [];   // [{ id, title, sub, when }]  (you can use timestamp for when)
+function applyTheme(payload){
 
-const resultsEl = document.getElementById("results");
-const resultsEmpty = document.getElementById("resultsEmpty");
-const updateListEl = document.getElementById("updateList");
-const updatesEmpty = document.getElementById("updatesEmpty");
+const slug=(payload?.clubSlug||"default").toLowerCase()
+
+const fallback=CLUB_THEMES[slug]||CLUB_THEMES.default
+
+const accent=payload?.theme?.accent||fallback.accent
+const accent2=payload?.theme?.accent2||fallback.accent2
+const glow=payload?.theme?.glow||fallback.bgGlow
+
+const r=document.documentElement.style
+
+r.setProperty("--accent",accent)
+r.setProperty("--accent2",accent2)
+r.setProperty("--clubGlow",glow)
+
+}
+
+/* DATA */
+
+let PLAYERS=[]
+let UPDATES=[]
 
 function renderPlayers(list){
-  resultsEl.innerHTML = "";
-  if (!list || !list.length){
-    resultsEl.appendChild(resultsEmpty);
-    resultsEmpty.style.display = "block";
-    return;
-  }
-  resultsEmpty.style.display = "none";
 
-  list.slice(0, 6).forEach(p => {
-    const row = document.createElement("div");
-    row.className = "resultItem";
-    row.style.cursor = "pointer";
-    row.addEventListener("click", () => {
-      try { window.parent.postMessage({ type:"PLAYER_DEV_OPEN_PLAYER", playerId: p.id || p._id || null }, "*"); } catch(_) {}
-      showToast("Open player");
-    });
+const results=document.getElementById("results")
+results.innerHTML=""
 
-    const name = safe(p?.name || "Player");
-    const meta = safe(p?.team || "");
-    const upd  = safe(p?.updated || "");
+list.slice(0,6).forEach(p=>{
 
-    row.innerHTML = `
-      <div>
-        <div class="rName">${name}</div>
-        <div class="btnSub" style="margin-top:2px">${meta}${(meta && upd) ? " • " : ""}${upd}</div>
-      </div>
-      <div class="rMeta">View</div>
-    `;
-    resultsEl.appendChild(row);
-  });
+const div=document.createElement("div")
+
+div.className="resultItem"
+
+div.innerHTML=`
+<div class="rName">${p.name}</div>
+<div style="font-size:12px;color:rgba(255,255,255,.6)">${p.team||""}</div>
+`
+
+results.appendChild(div)
+
+})
+
 }
 
 function renderUpdates(list){
-  updateListEl.innerHTML = "";
-  if (!list || !list.length){
-    updateListEl.appendChild(updatesEmpty);
-    updatesEmpty.style.display = "block";
-    return;
-  }
-  updatesEmpty.style.display = "none";
 
-  list.slice(0, 3).forEach(u => {
-    const item = document.createElement("div");
-    item.className = "updateItem";
+const el=document.getElementById("updateList")
+el.innerHTML=""
 
-    const title = safe(u?.title || "Update");
-    const sub   = safe(u?.sub || "");
-    const when  = safe(u?.when || "");
+list.slice(0,3).forEach(u=>{
 
-    item.innerHTML = `
-      <div class="uLeft">
-        <div class="uTitle">${title}</div>
-        ${sub ? `<div class="uSub">${sub}</div>` : ``}
-      </div>
-      <div class="uWhen">${when}</div>
-    `;
-    updateListEl.appendChild(item);
-  });
+const div=document.createElement("div")
+
+div.className="updateItem"
+
+div.innerHTML=`
+<div style="font-family:Impact;text-transform:uppercase">${u.title}</div>
+<div style="font-size:12px;color:rgba(255,255,255,.7)">${u.sub||""}</div>
+`
+
+el.appendChild(div)
+
+})
+
 }
 
-/* ---------- Search ---------- */
-const searchEl = document.getElementById("playerSearch");
-const clearBtn = document.getElementById("clearBtn");
+/* SEARCH */
 
-function applySearch(){
-  const q = String(searchEl.value || "").trim().toLowerCase();
-  if (!q) return renderPlayers(PLAYERS);
+document.getElementById("playerSearch").addEventListener("input",e=>{
 
-  const filtered = PLAYERS.filter(p => String(p?.name || "").toLowerCase().includes(q));
-  renderPlayers(filtered);
+const q=e.target.value.toLowerCase()
+
+renderPlayers(PLAYERS.filter(p=>p.name.toLowerCase().includes(q)))
+
+})
+
+/* BUTTON EVENTS */
+
+document.getElementById("btnEval").onclick=()=>{
+
+window.parent.postMessage({type:"PLAYER_DEV_NAV",action:"evaluation"},"*")
+
 }
 
-searchEl.addEventListener("input", applySearch);
-clearBtn.addEventListener("click", () => {
-  searchEl.value = "";
-  searchEl.focus();
-  applySearch();
-});
+document.getElementById("btnIdp").onclick=()=>{
 
-/* ---------- Motion toggle ---------- */
-let motionOn = true;
-document.getElementById("motionBtn").addEventListener("click", () => {
-  motionOn = !motionOn;
-  const mode = document.getElementById("mode");
-  if (!motionOn){
-    document.body.setAttribute("data-motion","off");
-    mode.style.animation = "none";
-    showToast("Motion: Off");
-  } else {
-    document.body.removeAttribute("data-motion");
-    mode.style.animation = "";
-    showToast("Motion: On");
-  }
-});
+window.parent.postMessage({type:"PLAYER_DEV_NAV",action:"idp"},"*")
 
-const style = document.createElement("style");
-style.textContent = `
-  body[data-motion="off"] .mode::before{ animation:none !important; opacity:.25 !important; }
-  body[data-motion="off"] .energyBar{ animation:none !important; opacity:.9 !important; transform:none !important; }
-`;
-document.head.appendChild(style);
-
-/* ---------- Buttons -> Wix actions ---------- */
-document.getElementById("btnEval").addEventListener("click", () => {
-  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"player-evaluation" }, "*"); } catch(_) {}
-  showToast("Player Evaluation");
-});
-document.getElementById("btnIdp").addEventListener("click", () => {
-  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {}
-  showToast("IDP");
-});
-
-/* ---------- Wix postMessage contract ---------- */
-/*
-Parent should post:
-{
-  type: "PLAYER_DEV_INIT",
-  clubSlug: "cherrybrook",
-  theme: { accent, accent2, glow }    // optional
-  ui: {
-    pageTitle, pageSub, modeTitle, modeSub, quickSub, overviewSub,
-    evalSub, idpSub
-  },
-  lastUpdated: "2026-03-04T12:34:00Z",
-  players: [{ id, name, team, updated }],
-  updates: [{ id, title, sub, when }]
-}
-*/
-function applyUi(ui){
-  const get = (k) => String(ui?.[k] ?? "").trim();
-
-  const pageTitle = get("pageTitle");
-  const pageSub   = get("pageSub");
-  const modeTitle = get("modeTitle");
-  const modeSub   = get("modeSub");
-  const quickSub  = get("quickSub");
-  const overviewSub = get("overviewSub");
-  const evalSub   = get("evalSub");
-  const idpSub    = get("idpSub");
-
-  if (pageTitle) document.getElementById("pageTitle").textContent = pageTitle;
-  if (pageSub) document.getElementById("pageSub").textContent = pageSub;
-
-  if (modeTitle) document.getElementById("modeTitle").textContent = modeTitle;
-  if (modeSub) document.getElementById("modeSub").textContent = modeSub;
-
-  if (quickSub) document.getElementById("quickSub").textContent = quickSub;
-  if (overviewSub) document.getElementById("overviewSub").textContent = overviewSub;
-
-  if (evalSub) document.getElementById("evalSub").textContent = evalSub;
-  if (idpSub) document.getElementById("idpSub").textContent = idpSub;
 }
 
-window.addEventListener("message", (ev) => {
-  const data = ev.data;
-  if (!data) return;
+/* MESSAGE HANDLER */
 
-  if (data.type === "PLAYER_DEV_INIT"){
-    applyThemeFromPayload(data);
+window.addEventListener("message",(ev)=>{
 
-    applyUi(data.ui || {});
-    document.getElementById("pageSub").textContent = String(data?.ui?.pageSub || "Ready").trim() || "Ready";
+const data=ev.data
 
-    document.getElementById("lastUpdatedText").textContent = formatLastUpdated(data.lastUpdated);
+if(!data)return
 
-    PLAYERS = Array.isArray(data.players) ? data.players : [];
-    UPDATES = Array.isArray(data.updates) ? data.updates : [];
+if(data.type==="PLAYER_DEV_INIT"){
 
-    renderPlayers(PLAYERS);
-    renderUpdates(UPDATES);
-  }
+applyTheme(data)
 
-  if (data.type === "PLAYER_DEV_SET_THEME"){
-    applyThemeFromPayload(data);
-  }
+document.getElementById("coachName").textContent=data.coachName||"Coach"
 
-  if (data.type === "PLAYER_DEV_SET_DATA"){
-    if (data.lastUpdated) document.getElementById("lastUpdatedText").textContent = formatLastUpdated(data.lastUpdated);
-    if (Array.isArray(data.players)) PLAYERS = data.players;
-    if (Array.isArray(data.updates)) UPDATES = data.updates;
-    applySearch();
-    renderUpdates(UPDATES);
-  }
-});
+PLAYERS=data.players||[]
+UPDATES=data.updates||[]
 
-/* handshake */
-try { window.parent.postMessage({ type:"PLAYER_DEV_IFRAME_READY" }, "*"); } catch(_) {}
+renderPlayers(PLAYERS)
+renderUpdates(UPDATES)
 
-/* initial minimal UI */
-document.getElementById("pageSub").textContent = "Waiting for data…";
-document.getElementById("modeSub").textContent = "Loading club + coach data…";
-document.getElementById("quickSub").textContent = "Select a module to continue.";
-document.getElementById("overviewSub").textContent = "Search players and view recent activity.";
-document.getElementById("evalSub").textContent = "Ratings • notes • KPIs • match feedback";
-document.getElementById("idpSub").textContent = "Goals • action steps • weekly focus • review dates";
+}
+
+})
+
+try{
+window.parent.postMessage({type:"PLAYER_DEV_IFRAME_READY"},"*")
+}catch{}
+
 </script>
+
 </body>
 </html>
