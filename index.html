@@ -13,7 +13,7 @@
   --text:#fff;
   --muted:#8a8a8a;
 
-  /* ✅ PURPLE THEME */
+  /* default (will be overridden by Wix postMessage) */
   --accent:#7B2EFF;
   --accent2:#B266FF;
   --clubGlow: rgba(123,46,255,.18);
@@ -22,7 +22,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-serif}
 
-/* ---------- stage / background ---------- */
+/* stage */
 .stage{
   min-height:100vh;
   padding:22px;
@@ -51,10 +51,9 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   pointer-events:none;
 }
 
-/* ---------- wrapper ---------- */
 .wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
 
-/* ---------- header ---------- */
+/* header */
 .topRow{
   display:flex;
   align-items:flex-start;
@@ -96,7 +95,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   background:rgba(255,255,255,.06);
 }
 
-/* ---------- hero banner ---------- */
+/* hero banner */
 .mode{
   margin-top:18px;
   padding:14px;
@@ -141,7 +140,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
 }
 @keyframes energyPulse{0%{opacity:.6;transform:scaleX(.98)}50%{opacity:1;transform:scaleX(1)}100%{opacity:.6;transform:scaleX(.98)}}
 
-/* ---------- main cards ---------- */
+/* main cards */
 .grid{
   margin-top:18px;
   display:grid;
@@ -206,7 +205,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   position:relative;z-index:2;
 }
 
-/* ---------- big buttons ---------- */
+/* big buttons */
 .btnStack{margin-top:14px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
 .bigBtn{
   width:100%;
@@ -232,7 +231,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
     0 0 22px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 .bigBtn:active{transform:translateY(-1px) scale(.995)}
-
 .btnLeft{display:flex;gap:12px;align-items:center}
 .icon{
   width:42px;height:42px;border-radius:14px;
@@ -249,7 +247,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   letter-spacing:.7px;
   font-size:22px;
   line-height:1.05;
-  color:#fff; /* ✅ force white */
+  color:#fff;
 }
 .btnSub{color:rgba(255,255,255,.72);font-size:13px;line-height:1.35}
 .chev{
@@ -259,7 +257,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   opacity:.9;
 }
 
-/* ---------- overview: search + last updated + recent updates ---------- */
+/* overview: search + last updated + recent updates */
 .overviewBlock{margin-top:14px;position:relative;z-index:2}
 .labelRow{
   display:flex;justify-content:space-between;align-items:center;
@@ -329,11 +327,17 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   text-transform:uppercase;
   letter-spacing:.6px;
   font-size:16px;
-  color:#fff; /* ✅ force white */
+  color:#fff;
 }
 .rMeta{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
+.empty{
+  padding:12px 12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.03);
+  color:rgba(255,255,255,.72);
+  font-size:13px;
+}
 
-/* Recent updates list */
 .updates{
   margin-top:14px;
   border-top:1px solid rgba(255,255,255,.10);
@@ -362,10 +366,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
 .uSub{margin-top:2px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.35}
 .uWhen{color:rgba(255,255,255,.62);font-size:12px;white-space:nowrap}
 
-/* ---------- right column notes ---------- */
-.noteList{margin:10px 0 0 18px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.5;position:relative;z-index:2}
-
-/* ---------- toast ---------- */
+/* toast */
 .toast{
   position:fixed;
   left:50%; bottom:18px;
@@ -391,10 +392,8 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   <div class="wrap">
     <div class="topRow">
       <div>
-        <div class="teamName">Player Development</div>
-        <div class="sub">
-          Homepage for development tools. Cherrybrook red preview theme. Two buttons are placeholders (no links yet).
-        </div>
+        <div class="teamName" id="pageTitle">Player Development</div>
+        <div class="sub" id="pageSub">Loading…</div>
       </div>
 
       <div class="chips">
@@ -403,21 +402,18 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
     </div>
 
     <div class="mode" id="mode">
-      <div class="modeTitle">Development Mode</div>
-      <div class="modeSub">Pick a module — evaluation or IDP — to start building player profiles.</div>
+      <div class="modeTitle" id="modeTitle">Development Mode</div>
+      <div class="modeSub" id="modeSub">—</div>
       <div class="energyBar"></div>
     </div>
 
     <div class="grid">
-      <!-- LEFT: main actions -->
       <div class="card">
         <h2 class="sectionTitle">Quick Access</h2>
-        <div class="smallSub">
-          Use this as your home “title page” and later wire each module into your Wix iframe routing.
-        </div>
+        <div class="smallSub" id="quickSub">—</div>
 
         <div class="btnStack">
-          <button class="bigBtn" type="button" id="btnEval" aria-label="Player Evaluation">
+          <button class="bigBtn" type="button" id="btnEval" data-action="player-evaluation" aria-label="Player Evaluation">
             <div class="btnLeft">
               <div class="icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -427,13 +423,13 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
               </div>
               <div class="btnText">
                 <div class="btnTitle">Player Evaluation</div>
-                <div class="btnSub">Ratings • coach notes • KPIs • match feedback</div>
+                <div class="btnSub" id="evalSub">—</div>
               </div>
             </div>
             <div class="chev" aria-hidden="true">›</div>
           </button>
 
-          <button class="bigBtn" type="button" id="btnIdp" aria-label="Individual Player Development Plan">
+          <button class="bigBtn" type="button" id="btnIdp" data-action="idp" aria-label="Individual Player Development Plan">
             <div class="btnLeft">
               <div class="icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -443,7 +439,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
               </div>
               <div class="btnText">
                 <div class="btnTitle">Individual Development Plan</div>
-                <div class="btnSub">Goals • action steps • weekly homework • review dates</div>
+                <div class="btnSub" id="idpSub">—</div>
               </div>
             </div>
             <div class="chev" aria-hidden="true">›</div>
@@ -451,12 +447,9 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
         </div>
       </div>
 
-      <!-- RIGHT: overview (UPDATED per request) -->
       <div class="card">
         <h2 class="sectionTitle">Overview</h2>
-        <div class="smallSub">
-          Player search + last updated, with only the 3 most recent updates.
-        </div>
+        <div class="smallSub" id="overviewSub">—</div>
 
         <div class="overviewBlock">
           <div class="labelRow">
@@ -472,19 +465,18 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
             <button id="clearBtn" class="searchBtn" type="button">Clear</button>
           </div>
 
-          <div class="results" id="results"></div>
+          <div class="results" id="results">
+            <div class="empty" id="resultsEmpty">No players loaded</div>
+          </div>
 
-          <!-- ✅ NEW: Recent updates (3 only) -->
           <div class="updates">
             <div class="updatesTitle">Recent Updates</div>
-            <div class="updateList" id="updateList"></div>
+            <div class="updateList" id="updateList">
+              <div class="empty" id="updatesEmpty">No updates loaded</div>
+            </div>
           </div>
         </div>
 
-        <ul class="noteList">
-          <li>Search is demo data for preview (wire to Wix later).</li>
-          <li>Updates show the 3 most recent only.</li>
-        </ul>
       </div>
     </div>
   </div>
@@ -493,17 +485,146 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* UI behaviors: motion toggle + button toasts + player search + recent updates */
-
-const toast = document.getElementById("toast");
+/* ---------- Utilities ---------- */
+function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
 function showToast(msg){
+  const toast = document.getElementById("toast");
   toast.textContent = msg;
   toast.classList.add("on");
   clearTimeout(showToast._t);
   showToast._t = setTimeout(()=> toast.classList.remove("on"), 1100);
 }
+function formatLastUpdated(v){
+  if (!v) return "Last updated —";
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return "Last updated —";
+  const fmt = new Intl.DateTimeFormat(undefined, {
+    weekday:"short", month:"short", day:"numeric",
+    hour:"numeric", minute:"2-digit"
+  }).format(d);
+  return "Last updated " + fmt;
+}
 
-/* Motion toggle */
+/* ---------- Theme ---------- */
+const CLUB_THEMES = {
+  default:     { accent:"#7B2EFF", accent2:"#B266FF", bgGlow:"rgba(123,46,255,.18)" },
+  cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", bgGlow:"rgba(200,16,46,.20)" },
+  rumson:      { accent:"#FFFFFF", accent2:"#BDBDBD", bgGlow:"rgba(255,255,255,.10)" },
+  monmouth:    { accent:"#00E5FF", accent2:"#00A3FF", bgGlow:"rgba(0,229,255,.18)" }
+};
+
+function applyThemeFromPayload(payload){
+  const slug = String(payload?.clubSlug || "default").trim().toLowerCase();
+  const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
+
+  const t = payload?.theme || null;
+
+  const rawAccent  = (t?.accent ?? t?.primary ?? "");
+  const rawAccent2 = (t?.accent2 ?? t?.secondary ?? "");
+  const rawGlow    = (t?.glow ?? t?.clubGlow ?? t?.bgGlow ?? "");
+
+  const accent  = String(rawAccent || "").trim()  || fallback.accent;
+  const accent2 = String(rawAccent2 || "").trim() || fallback.accent2 || accent;
+  const glow    = String(rawGlow || "").trim()    || fallback.bgGlow;
+
+  const r = document.documentElement.style;
+  r.setProperty("--accent", accent);
+  r.setProperty("--accent2", accent2);
+  r.setProperty("--clubGlow", glow);
+
+  console.log("🎨 PLAYER DEV THEME SET:", { clubSlug: slug, accent, accent2, glow, rawTheme: t });
+}
+
+/* ---------- Data Rendering (populated by Wix) ---------- */
+let PLAYERS = [];   // [{ id, name, team, updated }]
+let UPDATES = [];   // [{ id, title, sub, when }]  (you can use timestamp for when)
+
+const resultsEl = document.getElementById("results");
+const resultsEmpty = document.getElementById("resultsEmpty");
+const updateListEl = document.getElementById("updateList");
+const updatesEmpty = document.getElementById("updatesEmpty");
+
+function renderPlayers(list){
+  resultsEl.innerHTML = "";
+  if (!list || !list.length){
+    resultsEl.appendChild(resultsEmpty);
+    resultsEmpty.style.display = "block";
+    return;
+  }
+  resultsEmpty.style.display = "none";
+
+  list.slice(0, 6).forEach(p => {
+    const row = document.createElement("div");
+    row.className = "resultItem";
+    row.style.cursor = "pointer";
+    row.addEventListener("click", () => {
+      try { window.parent.postMessage({ type:"PLAYER_DEV_OPEN_PLAYER", playerId: p.id || p._id || null }, "*"); } catch(_) {}
+      showToast("Open player");
+    });
+
+    const name = safe(p?.name || "Player");
+    const meta = safe(p?.team || "");
+    const upd  = safe(p?.updated || "");
+
+    row.innerHTML = `
+      <div>
+        <div class="rName">${name}</div>
+        <div class="btnSub" style="margin-top:2px">${meta}${(meta && upd) ? " • " : ""}${upd}</div>
+      </div>
+      <div class="rMeta">View</div>
+    `;
+    resultsEl.appendChild(row);
+  });
+}
+
+function renderUpdates(list){
+  updateListEl.innerHTML = "";
+  if (!list || !list.length){
+    updateListEl.appendChild(updatesEmpty);
+    updatesEmpty.style.display = "block";
+    return;
+  }
+  updatesEmpty.style.display = "none";
+
+  list.slice(0, 3).forEach(u => {
+    const item = document.createElement("div");
+    item.className = "updateItem";
+
+    const title = safe(u?.title || "Update");
+    const sub   = safe(u?.sub || "");
+    const when  = safe(u?.when || "");
+
+    item.innerHTML = `
+      <div class="uLeft">
+        <div class="uTitle">${title}</div>
+        ${sub ? `<div class="uSub">${sub}</div>` : ``}
+      </div>
+      <div class="uWhen">${when}</div>
+    `;
+    updateListEl.appendChild(item);
+  });
+}
+
+/* ---------- Search ---------- */
+const searchEl = document.getElementById("playerSearch");
+const clearBtn = document.getElementById("clearBtn");
+
+function applySearch(){
+  const q = String(searchEl.value || "").trim().toLowerCase();
+  if (!q) return renderPlayers(PLAYERS);
+
+  const filtered = PLAYERS.filter(p => String(p?.name || "").toLowerCase().includes(q));
+  renderPlayers(filtered);
+}
+
+searchEl.addEventListener("input", applySearch);
+clearBtn.addEventListener("click", () => {
+  searchEl.value = "";
+  searchEl.focus();
+  applySearch();
+});
+
+/* ---------- Motion toggle ---------- */
 let motionOn = true;
 document.getElementById("motionBtn").addEventListener("click", () => {
   motionOn = !motionOn;
@@ -526,107 +647,99 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-/* Buttons: placeholder feedback */
-document.getElementById("btnEval").addEventListener("click", ()=> showToast("Player Evaluation (placeholder)"));
-document.getElementById("btnIdp").addEventListener("click",  ()=> showToast("IDP (placeholder)"));
+/* ---------- Buttons -> Wix actions ---------- */
+document.getElementById("btnEval").addEventListener("click", () => {
+  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"player-evaluation" }, "*"); } catch(_) {}
+  showToast("Player Evaluation");
+});
+document.getElementById("btnIdp").addEventListener("click", () => {
+  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {}
+  showToast("IDP");
+});
 
-/* Last updated (preview: page load time) */
-const lastUpdatedText = document.getElementById("lastUpdatedText");
-(function setLastUpdated(){
-  const d = new Date();
-  const fmt = new Intl.DateTimeFormat(undefined, {
-    weekday:"short", month:"short", day:"numeric",
-    hour:"numeric", minute:"2-digit"
-  }).format(d);
-  lastUpdatedText.textContent = `Last updated ${fmt}`;
-})();
+/* ---------- Wix postMessage contract ---------- */
+/*
+Parent should post:
+{
+  type: "PLAYER_DEV_INIT",
+  clubSlug: "cherrybrook",
+  theme: { accent, accent2, glow }    // optional
+  ui: {
+    pageTitle, pageSub, modeTitle, modeSub, quickSub, overviewSub,
+    evalSub, idpSub
+  },
+  lastUpdated: "2026-03-04T12:34:00Z",
+  players: [{ id, name, team, updated }],
+  updates: [{ id, title, sub, when }]
+}
+*/
+function applyUi(ui){
+  const get = (k) => String(ui?.[k] ?? "").trim();
 
-/* Demo players (replace later) */
-const PLAYERS = [
-  { name:"Lucy", team:"U9", updated:"2d" },
-  { name:"Liv", team:"U9", updated:"5d" },
-  { name:"Grace", team:"U9", updated:"1w" },
-  { name:"Willa", team:"U9", updated:"3d" },
-  { name:"Scarlett", team:"U9", updated:"6d" },
-  { name:"Hannah", team:"U9", updated:"4d" },
-  { name:"Marcella", team:"U9", updated:"2w" },
-  { name:"Addison", team:"U9", updated:"1w" }
-];
+  const pageTitle = get("pageTitle");
+  const pageSub   = get("pageSub");
+  const modeTitle = get("modeTitle");
+  const modeSub   = get("modeSub");
+  const quickSub  = get("quickSub");
+  const overviewSub = get("overviewSub");
+  const evalSub   = get("evalSub");
+  const idpSub    = get("idpSub");
 
-const resultsEl = document.getElementById("results");
-const searchEl = document.getElementById("playerSearch");
-const clearBtn = document.getElementById("clearBtn");
+  if (pageTitle) document.getElementById("pageTitle").textContent = pageTitle;
+  if (pageSub) document.getElementById("pageSub").textContent = pageSub;
 
-function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
+  if (modeTitle) document.getElementById("modeTitle").textContent = modeTitle;
+  if (modeSub) document.getElementById("modeSub").textContent = modeSub;
 
-function renderResults(list){
-  resultsEl.innerHTML = "";
-  if (!list.length){
-    const empty = document.createElement("div");
-    empty.className = "resultItem";
-    empty.innerHTML = `<div class="rName">No matches</div><div class="rMeta">—</div>`;
-    resultsEl.appendChild(empty);
-    return;
+  if (quickSub) document.getElementById("quickSub").textContent = quickSub;
+  if (overviewSub) document.getElementById("overviewSub").textContent = overviewSub;
+
+  if (evalSub) document.getElementById("evalSub").textContent = evalSub;
+  if (idpSub) document.getElementById("idpSub").textContent = idpSub;
+}
+
+window.addEventListener("message", (ev) => {
+  const data = ev.data;
+  if (!data) return;
+
+  if (data.type === "PLAYER_DEV_INIT"){
+    applyThemeFromPayload(data);
+
+    applyUi(data.ui || {});
+    document.getElementById("pageSub").textContent = String(data?.ui?.pageSub || "Ready").trim() || "Ready";
+
+    document.getElementById("lastUpdatedText").textContent = formatLastUpdated(data.lastUpdated);
+
+    PLAYERS = Array.isArray(data.players) ? data.players : [];
+    UPDATES = Array.isArray(data.updates) ? data.updates : [];
+
+    renderPlayers(PLAYERS);
+    renderUpdates(UPDATES);
   }
 
-  list.slice(0,6).forEach(p => {
-    const row = document.createElement("div");
-    row.className = "resultItem";
-    row.style.cursor = "pointer";
-    row.title = "Placeholder click (wire to player page later)";
-    row.addEventListener("click", () => showToast(`Open player: ${p.name} (placeholder)`));
+  if (data.type === "PLAYER_DEV_SET_THEME"){
+    applyThemeFromPayload(data);
+  }
 
-    row.innerHTML = `
-      <div>
-        <div class="rName">${safe(p.name)}</div>
-        <div class="btnSub" style="margin-top:2px">${safe(p.team)} • Last activity: ${safe(p.updated)}</div>
-      </div>
-      <div class="rMeta">View</div>
-    `;
-    resultsEl.appendChild(row);
-  });
-}
-
-function applySearch(){
-  const q = String(searchEl.value || "").trim().toLowerCase();
-  if (!q){ renderResults(PLAYERS); return; }
-  renderResults(PLAYERS.filter(p => p.name.toLowerCase().includes(q)));
-}
-
-searchEl.addEventListener("input", applySearch);
-clearBtn.addEventListener("click", () => {
-  searchEl.value = "";
-  searchEl.focus();
-  applySearch();
-  showToast("Search cleared");
+  if (data.type === "PLAYER_DEV_SET_DATA"){
+    if (data.lastUpdated) document.getElementById("lastUpdatedText").textContent = formatLastUpdated(data.lastUpdated);
+    if (Array.isArray(data.players)) PLAYERS = data.players;
+    if (Array.isArray(data.updates)) UPDATES = data.updates;
+    applySearch();
+    renderUpdates(UPDATES);
+  }
 });
-renderResults(PLAYERS);
 
-/* ✅ Recent Updates (show ONLY 3 most recent) */
-const UPDATES = [
-  { title:"Evaluation template updated", sub:"New technical + mentality bands added.", when:"Today" },
-  { title:"IDP structure refreshed", sub:"Weekly focus + review date fields.", when:"2d" },
-  { title:"New player added", sub:"Profile created and ready for first eval.", when:"5d" },
-  { title:"Old item (not shown)", sub:"This should not appear in top 3.", when:"2w" }
-];
+/* handshake */
+try { window.parent.postMessage({ type:"PLAYER_DEV_IFRAME_READY" }, "*"); } catch(_) {}
 
-const updateListEl = document.getElementById("updateList");
-function renderUpdates(){
-  updateListEl.innerHTML = "";
-  UPDATES.slice(0,3).forEach(u => {
-    const item = document.createElement("div");
-    item.className = "updateItem";
-    item.innerHTML = `
-      <div class="uLeft">
-        <div class="uTitle">${safe(u.title)}</div>
-        <div class="uSub">${safe(u.sub)}</div>
-      </div>
-      <div class="uWhen">${safe(u.when)}</div>
-    `;
-    updateListEl.appendChild(item);
-  });
-}
-renderUpdates();
+/* initial minimal UI */
+document.getElementById("pageSub").textContent = "Waiting for data…";
+document.getElementById("modeSub").textContent = "Loading club + coach data…";
+document.getElementById("quickSub").textContent = "Select a module to continue.";
+document.getElementById("overviewSub").textContent = "Search players and view recent activity.";
+document.getElementById("evalSub").textContent = "Ratings • notes • KPIs • match feedback";
+document.getElementById("idpSub").textContent = "Goals • action steps • weekly focus • review dates";
 </script>
 </body>
 </html>
