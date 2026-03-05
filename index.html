@@ -4,378 +4,369 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Player Development</title>
-
 <style>
 :root{
-  --accent:#7B2EFF;
-  --accent2:#B266FF;
+  --bg:#000; --card:#111; --border:#1e1e1e; --text:#fff; --muted:#8a8a8a;
+  --accent:#7B2EFF; --accent2:#B266FF;
   --clubGlow: rgba(123,46,255,.18);
 }
-
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  background:#000;
-  color:#fff;
-  font-family:Arial,sans-serif
-}
-
+body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-serif}
 .stage{
-  min-height:100vh;
-  padding:22px;
+  min-height:100vh;padding:22px;
   background:
     radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
-    radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
     linear-gradient(180deg,#000 0%,#050505 100%);
+  position:relative;overflow:hidden;
 }
+.stage::before{
+  content:"";position:absolute;inset:-40% -20%;transform:rotate(-14deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
+  opacity:.18;pointer-events:none;
+}
+.wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
 
-.wrap{max-width:980px;margin:0 auto}
-
+/* header */
 .teamName{
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
-  font-size:48px;
-  text-transform:uppercase;
-  letter-spacing:1px;
+  font-size:44px;text-transform:uppercase;letter-spacing:1px;line-height:1
 }
+.sub{margin-top:8px;color:var(--muted);font-size:14px}
 
-.titleLine{
-  height:4px;
-  width:100%;
-  max-width:420px;
-  border-radius:999px;
-  margin-top:6px;
-  background:linear-gradient(90deg,var(--accent),transparent);
+/* theme line under title */
+.themeLine{
+  margin-top:14px;height:4px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
+  box-shadow:0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+  position:relative;overflow:hidden;
 }
-
-.sub{
-  margin-top:10px;
-  color:rgba(255,255,255,.75);
-  font-size:14px;
+.themeLine::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,.35), rgba(255,255,255,0));
+  transform:translateX(-70%);animation:sweep 2.8s linear infinite;opacity:.9;pointer-events:none;
 }
+@keyframes sweep{0%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
 
-.grid{
-  margin-top:24px;
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:14px;
-}
-
-@media (max-width:880px){
-  .grid{grid-template-columns:1fr}
-}
-
+/* card */
 .card{
+  margin-top:18px;
   background:rgba(17,17,17,.85);
   border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:16px;
+  border-radius:16px;padding:16px;position:relative;overflow:hidden;
+  box-shadow:0 20px 70px rgba(0,0,0,.58);
 }
-
-.sectionTitle{
+.card::before{
+  content:"";position:absolute;inset:-50% -20%;transform:rotate(-12deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.05), rgba(255,255,255,0));
+  opacity:.28;pointer-events:none;
+}
+.hRow{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;position:relative;z-index:2}
+.hTitle{
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
-  font-size:26px;
-  text-transform:uppercase;
-  letter-spacing:.6px;
-  position:relative;
-  padding-bottom:6px;
+  font-size:22px;text-transform:uppercase;letter-spacing:.8px;margin:0
 }
-
-.sectionTitle::after{
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:0;
-  height:4px;
-  width:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--accent),transparent);
-}
-
-.smallSub{
-  margin-top:8px;
-  color:rgba(255,255,255,.7);
-  font-size:13px;
-}
-
-/* buttons */
-.btnStack{margin-top:14px;display:flex;flex-direction:column;gap:12px}
-
-.bigBtn{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:16px;border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
+.pill{
+  font-size:11px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;
+  padding:7px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
   background:rgba(255,255,255,.04);
-  cursor:pointer;transition:.18s;
+  color:rgba(255,255,255,.86);
+  white-space:nowrap
 }
-.bigBtn:hover{border-color:var(--accent);box-shadow:0 0 18px var(--clubGlow)}
+.pill.accent{
+  border-color:color-mix(in srgb, var(--accent) 60%, transparent);
+  background:color-mix(in srgb, var(--accent) 18%, transparent)
+}
+.meta{margin-top:10px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.45;position:relative;z-index:2}
 
-/* ✅ titles forced white */
-.btnTitle{
-  font-family:Impact,sans-serif;
-  text-transform:uppercase;
-  font-size:22px;
+/* search */
+.searchWrap{margin-top:12px;display:flex;gap:10px;align-items:center;position:relative;z-index:2}
+.search{
+  flex:1;display:flex;align-items:center;gap:10px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);
+  border-radius:14px;padding:10px 12px;
+}
+.search input{
+  width:100%;border:none;outline:none;background:transparent;color:rgba(255,255,255,.92);
+  font-size:14px;
+}
+.search input::placeholder{color:rgba(255,255,255,.40)}
+.searchBtn{
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(90deg,color-mix(in srgb, var(--accent) 20%, transparent), rgba(255,255,255,.04));
+  color:rgba(255,255,255,.92);
+  border-radius:14px;padding:10px 12px;cursor:pointer;
+  transition:.18s ease;
+}
+.searchBtn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.20)}
+.smallLine{
+  height:3px;border-radius:999px;margin-top:14px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  opacity:.8;
+}
+
+/* results */
+.results{margin-top:12px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2}
+.resultItem{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.18);
+  border-radius:14px;padding:12px;
+  transition:.18s ease;
+  cursor:pointer;
+}
+.resultItem:hover{border-color:rgba(255,255,255,.16);transform:translateY(-1px)}
+.rName{font-weight:900;font-size:13px;color:rgba(255,255,255,.92);letter-spacing:.2px}
+.rMeta{margin-top:4px;font-size:12px;color:rgba(255,255,255,.55)}
+.empty{
+  margin-top:12px;
+  border:1px dashed rgba(255,255,255,.16);
+  background:rgba(0,0,0,.12);
+  border-radius:14px;
+  padding:12px;
+  color:rgba(255,255,255,.60);
+  position:relative;z-index:2;
+}
+
+/* modules buttons */
+.modules{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:860px){.modules{grid-template-columns:1fr}}
+.modBtn{
+  display:block;text-decoration:none;color:inherit;
+  background:rgba(17,17,17,.85);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;padding:18px;position:relative;overflow:hidden;
+  transition:.18s ease;cursor:pointer;
+}
+.modBtn:hover{background:rgba(26,26,26,.9);transform:translateY(-2px);border-color:rgba(255,255,255,.16)}
+.modBtn::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(600px 120px at 20% 10%, var(--clubGlow), transparent 60%);
+  opacity:.55;
+}
+.modTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;position:relative;z-index:2}
+.modTitle{
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:28px;text-transform:uppercase;letter-spacing:.6px;margin:0;
   color:#fff;
 }
-.btnSub{font-size:13px;color:rgba(255,255,255,.7)}
-.chev{font-family:Impact,sans-serif;font-size:26px}
-
-.search{
-  width:100%;
-  padding:12px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.04);
-  color:#fff;margin-top:10px;
+.modTitle::after{
+  content:"";display:block;margin-top:8px;height:4px;width:100%;
+  border-radius:999px;background:linear-gradient(90deg,var(--accent),transparent);
+  transform:scaleX(0);transform-origin:left;transition:.22s ease
 }
-
-.results{margin-top:10px}
-.resultItem{
-  padding:10px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.03);
-  margin-bottom:6px;cursor:pointer;
-}
-.rName{font-family:Impact;text-transform:uppercase}
-
-.updates{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
-.updateItem{
-  padding:10px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.03);
-  margin-bottom:6px;
-}
-
-/* tiny debug pill (visible on Wix if theme fails) */
-.debug{
-  margin-top:10px;
-  font-size:12px;
-  color:rgba(255,255,255,.75);
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.03);
-  padding:10px 12px;
-  border-radius:12px;
-  display:none;
-}
-.debug.on{display:block}
-.debug b{color:#fff}
+.modBtn:hover .modTitle::after{transform:scaleX(1)}
+.modDesc{margin-top:10px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.45;position:relative;z-index:2}
 </style>
 </head>
 
 <body>
 <div class="stage">
   <div class="wrap">
+    <div class="teamName" id="teamName">Player Development</div>
+    <div class="sub" id="sub">Coach</div>
+    <div class="themeLine" aria-hidden="true"></div>
 
-    <div class="teamName" id="pageTitle">Player Development</div>
-    <div class="titleLine"></div>
-    <div class="sub" id="coachName">Coach</div>
-
-    <div class="debug" id="debugBox"></div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="sectionTitle">Quick Access</h2>
-        <div class="smallSub">Select a development tool.</div>
-
-        <div class="btnStack">
-          <button class="bigBtn" id="btnEval" type="button">
-            <div>
-              <div class="btnTitle">Player Evaluation</div>
-              <div class="btnSub">Ratings • notes • match feedback</div>
-            </div>
-            <div class="chev">›</div>
-          </button>
-
-          <button class="bigBtn" id="btnIdp" type="button">
-            <div>
-              <div class="btnTitle">Individual Development Plan</div>
-              <div class="btnSub">Goals • progress • training focus</div>
-            </div>
-            <div class="chev">›</div>
-          </button>
-        </div>
+    <!-- ✅ Only ONE main card now -->
+    <div class="card">
+      <div class="hRow">
+        <h3 class="hTitle">Search Players</h3>
+        <div class="pill accent" id="countPill">0 Players</div>
       </div>
 
-      <div class="card">
-        <h2 class="sectionTitle">Overview</h2>
-
-        <input id="playerSearch" class="search" placeholder="Search player name" />
-        <div class="results" id="results"></div>
-
-        <div class="updates">
-          <div style="font-weight:bold;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Recent Updates</div>
-          <div id="updateList"></div>
-        </div>
+      <div class="meta" id="scopeMeta">
+        Showing players connected to your teams.
       </div>
+
+      <div class="searchWrap">
+        <div class="search" role="search">
+          <input id="playerSearch" type="search" placeholder="Type a player name…" autocomplete="off" />
+        </div>
+        <button class="searchBtn" id="searchBtn" type="button">Search</button>
+      </div>
+
+      <div class="smallLine"></div>
+
+      <div class="results" id="results"></div>
+      <div class="empty" id="emptyState" style="display:none"></div>
     </div>
 
+    <div class="modules">
+      <a class="modBtn" href="javascript:void(0)" id="evalBtn">
+        <div class="modTop">
+          <h2 class="modTitle">Player Evaluation</h2>
+          <div class="pill accent">Open</div><!-- ✅ changed from "Module" -->
+        </div>
+        <div class="modDesc">
+          Capture match & training feedback, technical notes, and key coaching points.
+        </div>
+      </a>
+
+      <a class="modBtn" href="javascript:void(0)" id="idpBtn">
+        <div class="modTop">
+          <h2 class="modTitle">Individual Development Plan</h2>
+          <div class="pill accent">Open</div><!-- ✅ changed from "Module" -->
+        </div>
+        <div class="modDesc">
+          Set objectives, assign homework, track progress, and review targets over time.
+        </div>
+      </a>
+    </div>
   </div>
 </div>
 
 <script>
-/* ---------- helpers ---------- */
-function clean(v){ return String(v || "").trim(); }
-function lower(v){ return String(v || "").toLowerCase().trim(); }
-function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
-
-function readCssVar(name){
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function showDebug(obj){
-  const box = document.getElementById("debugBox");
-  box.classList.add("on");
-  box.innerHTML = `
-    <div><b>Theme Debug</b></div>
-    <div>source: <b>${safe(obj.source || "unknown")}</b></div>
-    <div>clubSlug: <b>${safe(obj.clubSlug || "")}</b></div>
-    <div>accent: <b>${safe(readCssVar("--accent"))}</b></div>
-    <div>accent2: <b>${safe(readCssVar("--accent2"))}</b></div>
-    <div>glow: <b>${safe(readCssVar("--clubGlow"))}</b></div>
-    <div style="margin-top:6px;opacity:.85">url: ${safe(location.href)}</div>
-  `;
-}
-
-/* ---------- club theme fallbacks (add all your club slugs here) ---------- */
 const CLUB_THEMES = {
-  default:     { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" },
-
-  cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", glow:"rgba(200,16,46,.20)" },
-  monmouth:    { accent:"#00E5FF", accent2:"#00A3FF", glow:"rgba(0,229,255,.18)" },
-  rumson:      { accent:"#FFFFFF", accent2:"#BDBDBD", glow:"rgba(255,255,255,.10)" },
-  mds:         { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" }
+  default: { accent:"#7B2EFF", accent2:"#B266FF", bgGlow:"rgba(123,46,255,.18)" },
+  cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", bgGlow:"rgba(200,16,46,.20)" },
+  rumson: { accent:"#FFFFFF", accent2:"#BDBDBD", bgGlow:"rgba(255,255,255,.10)" },
+  monmouth: { accent:"#00E5FF", accent2:"#00A3FF", bgGlow:"rgba(0,229,255,.18)" }
 };
 
-/* ---------- apply theme ---------- */
-function applyTheme({ clubSlug, theme, source }){
-  const slug = lower(clubSlug || "default");
-  const fb = CLUB_THEMES[slug] || CLUB_THEMES.default;
+function safe(s){ return String(s ?? "").replace(/[<>]/g, ""); }
 
-  const rawAccent  = theme?.accent  ?? theme?.primary   ?? "";
-  const rawAccent2 = theme?.accent2 ?? theme?.secondary ?? "";
-  const rawGlow    = theme?.glow    ?? theme?.clubGlow  ?? theme?.bgGlow ?? "";
+function applyTheme({ clubSlug, accent, accent2, glow, source }) {
+  const slug = String(clubSlug || "default").trim().toLowerCase();
+  const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
 
-  const accent  = clean(rawAccent)  || fb.accent;
-  const accent2 = clean(rawAccent2) || fb.accent2 || accent;
-  const glow    = clean(rawGlow)    || fb.glow;
+  const finalAccent  = String(accent || "").trim()  || fallback.accent;
+  const finalAccent2 = String(accent2 || "").trim() || fallback.accent2 || finalAccent;
+  const finalGlow    = String(glow || "").trim()    || fallback.bgGlow;
 
   const r = document.documentElement.style;
-  r.setProperty("--accent", accent);
-  r.setProperty("--accent2", accent2);
-  r.setProperty("--clubGlow", glow);
+  r.setProperty("--accent", finalAccent);
+  r.setProperty("--accent2", finalAccent2);
+  r.setProperty("--clubGlow", finalGlow);
 
-  console.log("🎨 THEME APPLIED:", { slug, accent, accent2, glow, source });
-
-  // show debug if it looks like we stayed at default (helps you diagnose instantly)
-  showDebug({ source, clubSlug: slug });
-
-  try { window.parent.postMessage({ type:"PLAYER_DEV_THEME_APPLIED", slug, accent, accent2, glow }, "*"); } catch(_) {}
+  console.log("🎨 THEME APPLIED:", { slug, accent: finalAccent, accent2: finalAccent2, glow: finalGlow, source: source || "unknown" });
 }
 
-/* ---------- parse HASH theming (best for Wix) ----------
-   We support:
-   #clubSlug=cherrybrook&accent=%23C8102E&accent2=%23FF4B5C&glow=rgba(...)
-*/
-function parseHashParams(){
-  const raw = String(location.hash || "").replace(/^#/, "");
-  if (!raw) return null;
-  const p = new URLSearchParams(raw);
-  const clubSlug = p.get("clubSlug") || p.get("club") || "";
-  const accent = p.get("accent") || p.get("primary") || "";
-  const accent2 = p.get("accent2") || p.get("secondary") || "";
-  const glow = p.get("glow") || p.get("clubGlow") || p.get("bgGlow") || "";
-  const coachName = p.get("coachName") || p.get("coach") || "";
-  return { clubSlug, theme:{ accent, accent2, glow }, coachName };
+function setHeader({ clubSlug, coachName }) {
+  const $teamName = document.getElementById("teamName");
+  const $sub = document.getElementById("sub");
+  if ($teamName) $teamName.textContent = "Player Development";
+  if ($sub) $sub.textContent = String(coachName || "Coach");
 }
 
-/* ---------- data ---------- */
-let PLAYERS = [];
-let UPDATES = [];
+// -------------------------
+// Players state + search
+// -------------------------
+let ALL_PLAYERS = []; // [{ _id, firstName, lastName, name, teamId, teamName }]
+let FILTERED = [];
 
-function renderPlayers(list){
-  const results = document.getElementById("results");
-  results.innerHTML = "";
-  const items = Array.isArray(list) ? list : [];
-  if (!items.length){
-    results.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No players</div>`;
+const $results = document.getElementById("results");
+const $empty = document.getElementById("emptyState");
+const $pill = document.getElementById("countPill");
+const $search = document.getElementById("playerSearch");
+const $btn = document.getElementById("searchBtn");
+
+function playerDisplayName(p){
+  const full = clean(`${p.firstName || ""} ${p.lastName || ""}`.trim());
+  return full || clean(p.name) || "Player";
+}
+function clean(v){ return String(v || "").trim(); }
+
+function render(list){
+  $results.innerHTML = "";
+  if ($pill) $pill.textContent = `${(ALL_PLAYERS || []).length} Players`;
+
+  if (!list || !list.length){
+    $empty.style.display = "block";
+    $empty.textContent = ALL_PLAYERS.length
+      ? "No matches. Try a different name."
+      : "No players found for your teams.";
     return;
   }
-  items.slice(0,6).forEach(p => {
-    const div = document.createElement("div");
-    div.className = "resultItem";
-    div.innerHTML = `
-      <div class="rName">${safe(p?.name || "Player")}</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.6)">${safe(p?.team || "")}</div>
+  $empty.style.display = "none";
+
+  list.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "resultItem";
+    const nm = playerDisplayName(p);
+    const meta = p.teamName ? `Team: ${p.teamName}` : (p.teamId ? `Team ID: ${p.teamId}` : "");
+    el.innerHTML = `
+      <div class="rName">${safe(nm)}</div>
+      <div class="rMeta">${safe(meta)}</div>
     `;
-    div.onclick = () => {
-      try { window.parent.postMessage({ type:"PLAYER_DEV_OPEN_PLAYER", playerId: p?.id || p?._id || null }, "*"); } catch(_) {}
+
+    // optional: tell Wix which player was clicked (no navigation yet)
+    el.onclick = () => {
+      try {
+        window.parent.postMessage({ type:"PLAYER_SELECTED", playerId: p._id, teamId: p.teamId }, "*");
+      } catch(_) {}
     };
-    results.appendChild(div);
+
+    $results.appendChild(el);
   });
 }
 
-function renderUpdates(list){
-  const el = document.getElementById("updateList");
-  el.innerHTML = "";
-  const items = Array.isArray(list) ? list : [];
-  if (!items.length){
-    el.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No updates</div>`;
+function doSearch(){
+  const q = clean($search?.value).toLowerCase();
+  if (!q){
+    FILTERED = ALL_PLAYERS.slice(0, 30);
+    render(FILTERED);
     return;
   }
-  items.slice(0,3).forEach(u => {
-    const div = document.createElement("div");
-    div.className = "updateItem";
-    div.innerHTML = `
-      <div style="font-family:Impact;text-transform:uppercase">${safe(u?.title || "Update")}</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.7)">${safe(u?.sub || "")}</div>
-    `;
-    el.appendChild(div);
-  });
+
+  const out = ALL_PLAYERS.filter(p => {
+    const nm = playerDisplayName(p).toLowerCase();
+    return nm.includes(q);
+  }).slice(0, 30);
+
+  FILTERED = out;
+  render(FILTERED);
 }
 
-/* search */
-document.getElementById("playerSearch").addEventListener("input", (e) => {
-  const q = lower(e.target.value);
-  if (!q) return renderPlayers(PLAYERS);
-  renderPlayers(PLAYERS.filter(p => lower(p?.name).includes(q)));
-});
+$btn?.addEventListener("click", doSearch);
+$search?.addEventListener("input", () => doSearch());
+$search?.addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
 
-/* buttons */
-document.getElementById("btnEval").onclick = () => { try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"evaluation" }, "*"); } catch(_) {} };
-document.getElementById("btnIdp").onclick  = () => { try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {} };
+// -------------------------
+// Boot from hash fallback
+// -------------------------
+function bootFromHash(){
+  const raw = (location.hash || "").replace(/^#/, "");
+  const params = new URLSearchParams(raw);
 
-/* ---------- INIT 1: hash params (Wix-safe) ---------- */
-(function initFromHash(){
-  const h = parseHashParams();
-  if (!h) {
-    applyTheme({ clubSlug:"default", theme:{}, source:"default" });
-    return;
-  }
-  if (h.coachName) document.getElementById("coachName").textContent = safe(h.coachName);
-  applyTheme({ clubSlug:h.clubSlug, theme:h.theme, source:"hash" });
-})();
+  const clubSlug = params.get("clubSlug") || "default";
+  const coachName = params.get("coachName") || "Coach";
+  const accent = params.get("accent") || "";
+  const accent2 = params.get("accent2") || "";
+  const glow = params.get("glow") || "";
 
-/* ---------- INIT 2: postMessage (Wix HTML component workflow) ---------- */
+  setHeader({ clubSlug, coachName });
+  applyTheme({ clubSlug, accent, accent2, glow, source: "hash" });
+}
+bootFromHash();
+
+// ✅ NEW: theme init listener (from Wix)
 window.addEventListener("message", (ev) => {
-  const msg = ev.data;
-  if (!msg) return;
+  const data = ev.data;
+  if (!data) return;
 
-  if (msg.type === "PLAYER_DEV_INIT"){
-    if (msg.coachName) document.getElementById("coachName").textContent = safe(msg.coachName);
-    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme || {}, source:"postMessage" });
-
-    PLAYERS = Array.isArray(msg.players) ? msg.players : [];
-    UPDATES = Array.isArray(msg.updates) ? msg.updates : [];
-    renderPlayers(PLAYERS);
-    renderUpdates(UPDATES);
+  // Theme init
+  if (data.type === "PLAYER_DEV_INIT") {
+    const clubSlug = data.clubSlug || "default";
+    const coachName = data.coachName || "Coach";
+    const accent = data.theme?.accent || "";
+    const accent2 = data.theme?.accent2 || "";
+    const glow = data.theme?.glow || "";
+    setHeader({ clubSlug, coachName });
+    applyTheme({ clubSlug, accent, accent2, glow, source: "postMessage" });
+    return;
   }
 
-  if (msg.type === "PLAYER_DEV_SET_THEME"){
-    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme || {}, source:"postMessage" });
+  // Players payload
+  if (data.type === "PLAYER_DEV_PLAYERS") {
+    const players = Array.isArray(data.players) ? data.players : [];
+    ALL_PLAYERS = players;
+    FILTERED = ALL_PLAYERS.slice(0, 30);
+    render(FILTERED);
+    return;
   }
 });
 
-/* handshake */
-try { window.parent.postMessage({ type:"PLAYER_DEV_IFRAME_READY" }, "*"); } catch(_) {}
+// Tell Wix we are ready
+try { window.parent.postMessage({ type:"IFRAME_READY" }, "*"); } catch(_) {}
 </script>
 </body>
 </html>
