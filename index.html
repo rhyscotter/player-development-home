@@ -25,15 +25,11 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   opacity:.18;pointer-events:none;
 }
 .wrap{max-width:980px;margin:0 auto;position:relative;z-index:2}
-
-/* header */
 .teamName{
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
   font-size:44px;text-transform:uppercase;letter-spacing:1px;line-height:1
 }
 .sub{margin-top:8px;color:var(--muted);font-size:14px}
-
-/* theme line under title */
 .themeLine{
   margin-top:14px;height:4px;border-radius:999px;
   background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);
@@ -47,7 +43,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
 }
 @keyframes sweep{0%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
 
-/* card */
 .card{
   margin-top:18px;
   background:rgba(17,17,17,.85);
@@ -79,7 +74,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
 }
 .meta{margin-top:10px;color:rgba(255,255,255,.72);font-size:13px;line-height:1.45;position:relative;z-index:2}
 
-/* search */
 .searchWrap{margin-top:12px;display:flex;gap:10px;align-items:center;position:relative;z-index:2}
 .search{
   flex:1;display:flex;align-items:center;gap:10px;
@@ -105,7 +99,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   opacity:.8;
 }
 
-/* results */
 .results{margin-top:12px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2}
 .resultItem{
   border:1px solid rgba(255,255,255,.10);
@@ -127,7 +120,6 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
   position:relative;z-index:2;
 }
 
-/* modules buttons */
 .modules{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:860px){.modules{grid-template-columns:1fr}}
 .modBtn{
@@ -222,6 +214,8 @@ const CLUB_THEMES = {
 function safe(s){ return String(s ?? "").replace(/[<>]/g, ""); }
 function clean(v){ return String(v || "").trim(); }
 
+let WIX_BASE = ""; // ✅ set by PLAYER_DEV_INIT
+
 function applyTheme({ clubSlug, accent, accent2, glow, source }) {
   const slug = String(clubSlug || "default").trim().toLowerCase();
   const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
@@ -238,28 +232,37 @@ function applyTheme({ clubSlug, accent, accent2, glow, source }) {
   console.log("🎨 THEME APPLIED:", { slug, accent: finalAccent, accent2: finalAccent2, glow: finalGlow, source: source || "unknown" });
 }
 
-function setHeader({ clubSlug, coachName }) {
+function setHeader({ coachName }) {
   const $teamName = document.getElementById("teamName");
   const $sub = document.getElementById("sub");
   if ($teamName) $teamName.textContent = "Player Development";
   if ($sub) $sub.textContent = String(coachName || "Coach");
 }
 
-// ✅ Navigate parent Wix site
 function go(path){
   const p = String(path || "").trim();
   if (!p) return;
+
+  const base = (WIX_BASE || "").replace(/\/+$/, "");
+  const target = base ? `${base}${p.startsWith("/") ? "" : "/"}${p}` : p;
+
   try {
-    if (window.parent && window.parent.location) {
-      window.parent.location.href = p;
+    if (window.top && window.top.location) {
+      window.top.location.href = target;
       return;
     }
   } catch(_) {}
-  // fallback (if parent nav blocked)
-  window.location.href = p;
+
+  try {
+    if (window.parent && window.parent.location) {
+      window.parent.location.href = target;
+      return;
+    }
+  } catch(_) {}
+
+  window.location.href = target;
 }
 
-// Wire buttons
 document.getElementById("evalBtn")?.addEventListener("click", (e) => {
   e.preventDefault();
   go("/player-evaluation");
@@ -269,9 +272,7 @@ document.getElementById("idpBtn")?.addEventListener("click", (e) => {
   go("/idp-homepage");
 });
 
-// -------------------------
-// Players state + search
-// -------------------------
+// players state + search
 let ALL_PLAYERS = [];
 let FILTERED = [];
 
@@ -306,13 +307,9 @@ function render(list){
       <div class="rName">${safe(nm)}</div>
       <div class="rMeta">${safe(meta)}</div>
     `;
-
     el.onclick = () => {
-      try {
-        window.parent.postMessage({ type:"PLAYER_SELECTED", playerId: p._id, teamId: p.teamId }, "*");
-      } catch(_) {}
+      try { window.parent.postMessage({ type:"PLAYER_SELECTED", playerId: p._id, teamId: p.teamId }, "*"); } catch(_) {}
     };
-
     $results.appendChild(el);
   });
 }
@@ -324,8 +321,7 @@ function doSearch(){
     render(FILTERED);
     return;
   }
-  const out = ALL_PLAYERS.filter(p => playerDisplayName(p).toLowerCase().includes(q)).slice(0, 30);
-  FILTERED = out;
+  FILTERED = ALL_PLAYERS.filter(p => playerDisplayName(p).toLowerCase().includes(q)).slice(0, 30);
   render(FILTERED);
 }
 
@@ -333,50 +329,43 @@ $btn?.addEventListener("click", doSearch);
 $search?.addEventListener("input", () => doSearch());
 $search?.addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
 
-// -------------------------
-// Boot from hash fallback
-// -------------------------
-function bootFromHash(){
+// boot from hash fallback (theme/header only)
+(function bootFromHash(){
   const raw = (location.hash || "").replace(/^#/, "");
   const params = new URLSearchParams(raw);
-
   const clubSlug = params.get("clubSlug") || "default";
   const coachName = params.get("coachName") || "Coach";
   const accent = params.get("accent") || "";
   const accent2 = params.get("accent2") || "";
   const glow = params.get("glow") || "";
-
-  setHeader({ clubSlug, coachName });
+  setHeader({ coachName });
   applyTheme({ clubSlug, accent, accent2, glow, source: "hash" });
-}
-bootFromHash();
+})();
 
-// Listen for Wix init + players
 window.addEventListener("message", (ev) => {
   const data = ev.data;
   if (!data) return;
 
   if (data.type === "PLAYER_DEV_INIT") {
+    WIX_BASE = String(data.wixBase || "").trim(); // ✅ critical for correct navigation
     const clubSlug = data.clubSlug || "default";
     const coachName = data.coachName || "Coach";
     const accent = data.theme?.accent || "";
     const accent2 = data.theme?.accent2 || "";
     const glow = data.theme?.glow || "";
-    setHeader({ clubSlug, coachName });
+    setHeader({ coachName });
     applyTheme({ clubSlug, accent, accent2, glow, source: "postMessage" });
     return;
   }
 
   if (data.type === "PLAYER_DEV_PLAYERS") {
-    const players = Array.isArray(data.players) ? data.players : [];
-    ALL_PLAYERS = players;
+    ALL_PLAYERS = Array.isArray(data.players) ? data.players : [];
     FILTERED = ALL_PLAYERS.slice(0, 30);
     render(FILTERED);
     return;
   }
 });
 
-// Tell Wix we are ready
 try { window.parent.postMessage({ type:"IFRAME_READY" }, "*"); } catch(_) {}
 </script>
 </body>
