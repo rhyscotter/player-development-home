@@ -6,7 +6,6 @@
 <title>Player Development</title>
 
 <style>
-
 :root{
   --accent:#7B2EFF;
   --accent2:#B266FF;
@@ -26,15 +25,12 @@ body{
   min-height:100vh;
   padding:22px;
   background:
-  radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
-  radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
-  linear-gradient(180deg,#000 0%,#050505 100%);
+    radial-gradient(1000px 600px at 20% -10%, rgba(255,255,255,.05), transparent 60%),
+    radial-gradient(900px 650px at 95% 10%, var(--clubGlow), transparent 55%),
+    linear-gradient(180deg,#000 0%,#050505 100%);
 }
 
-.wrap{
-  max-width:980px;
-  margin:0 auto;
-}
+.wrap{max-width:980px;margin:0 auto}
 
 .teamName{
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
@@ -102,8 +98,7 @@ body{
   font-size:13px;
 }
 
-/* BUTTON STACK */
-
+/* buttons */
 .btnStack{
   margin-top:14px;
   display:flex;
@@ -128,8 +123,7 @@ body{
   box-shadow:0 0 18px var(--clubGlow);
 }
 
-/* FORCE BUTTON TITLES WHITE */
-
+/* ✅ titles forced white */
 .btnTitle{
   font-family:Impact,sans-serif;
   text-transform:uppercase;
@@ -157,9 +151,7 @@ body{
   margin-top:10px;
 }
 
-.results{
-  margin-top:10px;
-}
+.results{margin-top:10px}
 
 .resultItem{
   padding:10px;
@@ -167,6 +159,7 @@ body{
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.03);
   margin-bottom:6px;
+  cursor:pointer;
 }
 
 .rName{
@@ -187,197 +180,235 @@ body{
   background:rgba(255,255,255,.03);
   margin-bottom:6px;
 }
-
 </style>
 </head>
 
 <body>
-
 <div class="stage">
-<div class="wrap">
+  <div class="wrap">
 
-<div class="teamName" id="pageTitle">Player Development</div>
-<div class="titleLine"></div>
-<div class="sub" id="coachName">Loading coach…</div>
+    <div class="teamName" id="pageTitle">Player Development</div>
+    <div class="titleLine"></div>
+    <div class="sub" id="coachName">Coach</div>
 
-<div class="grid">
+    <div class="grid">
+      <div class="card">
+        <h2 class="sectionTitle">Quick Access</h2>
+        <div class="smallSub">Select a development tool.</div>
 
-<div class="card">
+        <div class="btnStack">
+          <button class="bigBtn" id="btnEval" type="button">
+            <div>
+              <div class="btnTitle">Player Evaluation</div>
+              <div class="btnSub">Ratings • notes • match feedback</div>
+            </div>
+            <div class="chev">›</div>
+          </button>
 
-<h2 class="sectionTitle">Quick Access</h2>
-<div class="smallSub">Select a development tool.</div>
+          <button class="bigBtn" id="btnIdp" type="button">
+            <div>
+              <div class="btnTitle">Individual Development Plan</div>
+              <div class="btnSub">Goals • progress • training focus</div>
+            </div>
+            <div class="chev">›</div>
+          </button>
+        </div>
+      </div>
 
-<div class="btnStack">
+      <div class="card">
+        <h2 class="sectionTitle">Overview</h2>
 
-<button class="bigBtn" id="btnEval">
-<div>
-<div class="btnTitle">Player Evaluation</div>
-<div class="btnSub">Ratings • notes • match feedback</div>
-</div>
-<div class="chev">›</div>
-</button>
+        <input id="playerSearch" class="search" placeholder="Search player name" />
+        <div class="results" id="results"></div>
 
-<button class="bigBtn" id="btnIdp">
-<div>
-<div class="btnTitle">Individual Development Plan</div>
-<div class="btnSub">Goals • progress • training focus</div>
-</div>
-<div class="chev">›</div>
-</button>
+        <div class="updates">
+          <div style="font-weight:bold;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Recent Updates</div>
+          <div id="updateList"></div>
+        </div>
+      </div>
+    </div>
 
-</div>
-
-</div>
-
-<div class="card">
-
-<h2 class="sectionTitle">Overview</h2>
-
-<input id="playerSearch" class="search" placeholder="Search player name"/>
-
-<div class="results" id="results"></div>
-
-<div class="updates">
-<div style="font-weight:bold;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Recent Updates</div>
-<div id="updateList"></div>
-</div>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 </div>
 
 <script>
+/* ---------- helpers ---------- */
+function clean(v){ return String(v || "").trim(); }
+function lower(v){ return String(v || "").toLowerCase().trim(); }
+function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
 
-/* THEMING */
+function parseMaybeJson(x){
+  if (!x) return null;
+  if (typeof x === "object") return x;
+  if (typeof x === "string"){
+    try { return JSON.parse(x); } catch(_) { return null; }
+  }
+  return null;
+}
 
+function getQuery(){
+  const p = new URLSearchParams(location.search);
+  const obj = {};
+  for (const [k,v] of p.entries()) obj[k] = v;
+  return obj;
+}
+
+/* ---------- theme fallbacks for all clubs ---------- */
 const CLUB_THEMES = {
-default:{accent:"#7B2EFF",accent2:"#B266FF",bgGlow:"rgba(123,46,255,.18)"},
-cherrybrook:{accent:"#C8102E",accent2:"#FF4B5C",bgGlow:"rgba(200,16,46,.20)"}
+  default:     { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" },
+
+  cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", glow:"rgba(200,16,46,.20)" },
+  monmouth:    { accent:"#00E5FF", accent2:"#00A3FF", glow:"rgba(0,229,255,.18)" },
+  rumson:      { accent:"#FFFFFF", accent2:"#BDBDBD", glow:"rgba(255,255,255,.10)" },
+
+  mds:         { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" }
+};
+
+function applyTheme({ clubSlug, theme }){
+  const slug = lower(clubSlug || "default");
+  const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
+
+  const rawAccent  = theme?.accent  ?? theme?.primary   ?? "";
+  const rawAccent2 = theme?.accent2 ?? theme?.secondary ?? "";
+  const rawGlow    = theme?.glow    ?? theme?.clubGlow  ?? theme?.bgGlow ?? "";
+
+  const accent  = clean(rawAccent)  || fallback.accent;
+  const accent2 = clean(rawAccent2) || fallback.accent2 || accent;
+  const glow    = clean(rawGlow)    || fallback.glow;
+
+  const r = document.documentElement.style;
+  r.setProperty("--accent", accent);
+  r.setProperty("--accent2", accent2);
+  r.setProperty("--clubGlow", glow);
+
+  console.log("🎨 THEME APPLIED:", { slug, accent, accent2, glow });
+
+  try { window.parent.postMessage({ type:"PLAYER_DEV_THEME_APPLIED", slug, accent, accent2, glow }, "*"); } catch(_) {}
 }
 
-function applyTheme(payload){
-
-const slug=(payload?.clubSlug||"default").toLowerCase()
-
-const fallback=CLUB_THEMES[slug]||CLUB_THEMES.default
-
-const accent=payload?.theme?.accent||fallback.accent
-const accent2=payload?.theme?.accent2||fallback.accent2
-const glow=payload?.theme?.glow||fallback.bgGlow
-
-const r=document.documentElement.style
-
-r.setProperty("--accent",accent)
-r.setProperty("--accent2",accent2)
-r.setProperty("--clubGlow",glow)
-
-}
-
-/* DATA */
-
-let PLAYERS=[]
-let UPDATES=[]
+/* ---------- data ---------- */
+let PLAYERS = [];
+let UPDATES = [];
 
 function renderPlayers(list){
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+  const items = Array.isArray(list) ? list : [];
 
-const results=document.getElementById("results")
-results.innerHTML=""
+  if (!items.length){
+    results.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No players</div>`;
+    return;
+  }
 
-list.slice(0,6).forEach(p=>{
-
-const div=document.createElement("div")
-
-div.className="resultItem"
-
-div.innerHTML=`
-<div class="rName">${p.name}</div>
-<div style="font-size:12px;color:rgba(255,255,255,.6)">${p.team||""}</div>
-`
-
-results.appendChild(div)
-
-})
-
+  items.slice(0,6).forEach(p => {
+    const div = document.createElement("div");
+    div.className = "resultItem";
+    div.innerHTML = `
+      <div class="rName">${safe(p?.name || "Player")}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6)">${safe(p?.team || "")}</div>
+    `;
+    div.onclick = () => {
+      try { window.parent.postMessage({ type:"PLAYER_DEV_OPEN_PLAYER", playerId: p?.id || p?._id || null }, "*"); } catch(_) {}
+    };
+    results.appendChild(div);
+  });
 }
 
 function renderUpdates(list){
+  const el = document.getElementById("updateList");
+  el.innerHTML = "";
+  const items = Array.isArray(list) ? list : [];
 
-const el=document.getElementById("updateList")
-el.innerHTML=""
+  if (!items.length){
+    el.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No updates</div>`;
+    return;
+  }
 
-list.slice(0,3).forEach(u=>{
-
-const div=document.createElement("div")
-
-div.className="updateItem"
-
-div.innerHTML=`
-<div style="font-family:Impact;text-transform:uppercase">${u.title}</div>
-<div style="font-size:12px;color:rgba(255,255,255,.7)">${u.sub||""}</div>
-`
-
-el.appendChild(div)
-
-})
-
+  items.slice(0,3).forEach(u => {
+    const div = document.createElement("div");
+    div.className = "updateItem";
+    div.innerHTML = `
+      <div style="font-family:Impact;text-transform:uppercase">${safe(u?.title || "Update")}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.7)">${safe(u?.sub || "")}</div>
+    `;
+    el.appendChild(div);
+  });
 }
 
-/* SEARCH */
+/* search */
+document.getElementById("playerSearch").addEventListener("input", (e) => {
+  const q = lower(e.target.value);
+  if (!q) return renderPlayers(PLAYERS);
+  renderPlayers(PLAYERS.filter(p => lower(p?.name).includes(q)));
+});
 
-document.getElementById("playerSearch").addEventListener("input",e=>{
+/* buttons */
+document.getElementById("btnEval").onclick = () => {
+  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"evaluation" }, "*"); } catch(_) {}
+};
+document.getElementById("btnIdp").onclick = () => {
+  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {}
+};
 
-const q=e.target.value.toLowerCase()
+/* ---------- INIT: URL PARAM THEMING (works even without postMessage) ---------- */
+(function initFromQuery(){
+  const q = getQuery();
+  const clubSlug = q.clubSlug || q.club || "default";
 
-renderPlayers(PLAYERS.filter(p=>p.name.toLowerCase().includes(q)))
+  const theme = {
+    accent:  q.accent  || q.primary  || "",
+    accent2: q.accent2 || q.secondary || "",
+    glow:    q.glow    || q.clubGlow || q.bgGlow || ""
+  };
 
-})
+  const coachName = q.coachName || q.coach || "";
+  if (coachName) document.getElementById("coachName").textContent = coachName;
 
-/* BUTTON EVENTS */
+  applyTheme({ clubSlug, theme });
 
-document.getElementById("btnEval").onclick=()=>{
+  // optional seed data via query (rare; but won’t break)
+  if (q.playersJson){
+    const parsed = parseMaybeJson(decodeURIComponent(q.playersJson));
+    if (Array.isArray(parsed)) { PLAYERS = parsed; renderPlayers(PLAYERS); }
+  }
+  if (q.updatesJson){
+    const parsed = parseMaybeJson(decodeURIComponent(q.updatesJson));
+    if (Array.isArray(parsed)) { UPDATES = parsed; renderUpdates(UPDATES); }
+  }
+})();
 
-window.parent.postMessage({type:"PLAYER_DEV_NAV",action:"evaluation"},"*")
+/* ---------- INIT: postMessage (Wix HTML Component workflow) ---------- */
+window.addEventListener("message", (ev) => {
+  const msg = parseMaybeJson(ev.data) || ev.data;
+  if (!msg) return;
 
-}
+  if (msg.type === "PLAYER_DEV_INIT"){
+    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme });
 
-document.getElementById("btnIdp").onclick=()=>{
+    if (msg.coachName) document.getElementById("coachName").textContent = safe(msg.coachName);
 
-window.parent.postMessage({type:"PLAYER_DEV_NAV",action:"idp"},"*")
+    PLAYERS = Array.isArray(msg.players) ? msg.players : [];
+    UPDATES = Array.isArray(msg.updates) ? msg.updates : [];
 
-}
+    renderPlayers(PLAYERS);
+    renderUpdates(UPDATES);
+  }
 
-/* MESSAGE HANDLER */
+  if (msg.type === "PLAYER_DEV_SET_THEME"){
+    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme });
+  }
 
-window.addEventListener("message",(ev)=>{
+  if (msg.type === "PLAYER_DEV_SET_DATA"){
+    if (Array.isArray(msg.players)) PLAYERS = msg.players;
+    if (Array.isArray(msg.updates)) UPDATES = msg.updates;
+    renderPlayers(PLAYERS);
+    renderUpdates(UPDATES);
+  }
+});
 
-const data=ev.data
-
-if(!data)return
-
-if(data.type==="PLAYER_DEV_INIT"){
-
-applyTheme(data)
-
-document.getElementById("coachName").textContent=data.coachName||"Coach"
-
-PLAYERS=data.players||[]
-UPDATES=data.updates||[]
-
-renderPlayers(PLAYERS)
-renderUpdates(UPDATES)
-
-}
-
-})
-
-try{
-window.parent.postMessage({type:"PLAYER_DEV_IFRAME_READY"},"*")
-}catch{}
-
+/* handshake */
+try { window.parent.postMessage({ type:"PLAYER_DEV_IFRAME_READY" }, "*"); } catch(_) {}
+console.log("✅ IFRAME READY SENT");
 </script>
-
 </body>
 </html>
