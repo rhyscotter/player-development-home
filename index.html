@@ -99,29 +99,16 @@ body{
 }
 
 /* buttons */
-.btnStack{
-  margin-top:14px;
-  display:flex;
-  flex-direction:column;
-  gap:12px
-}
+.btnStack{margin-top:14px;display:flex;flex-direction:column;gap:12px}
 
 .bigBtn{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px;
-  border-radius:16px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px;border-radius:16px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(255,255,255,.04);
-  cursor:pointer;
-  transition:.18s;
+  cursor:pointer;transition:.18s;
 }
-
-.bigBtn:hover{
-  border-color:var(--accent);
-  box-shadow:0 0 18px var(--clubGlow);
-}
+.bigBtn:hover{border-color:var(--accent);box-shadow:0 0 18px var(--clubGlow)}
 
 /* ✅ titles forced white */
 .btnTitle{
@@ -130,56 +117,47 @@ body{
   font-size:22px;
   color:#fff;
 }
-
-.btnSub{
-  font-size:13px;
-  color:rgba(255,255,255,.7);
-}
-
-.chev{
-  font-family:Impact,sans-serif;
-  font-size:26px;
-}
+.btnSub{font-size:13px;color:rgba(255,255,255,.7)}
+.chev{font-family:Impact,sans-serif;font-size:26px}
 
 .search{
   width:100%;
-  padding:12px;
-  border-radius:12px;
+  padding:12px;border-radius:12px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(255,255,255,.04);
-  color:#fff;
-  margin-top:10px;
+  color:#fff;margin-top:10px;
 }
 
 .results{margin-top:10px}
-
 .resultItem{
-  padding:10px;
-  border-radius:12px;
+  padding:10px;border-radius:12px;
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.03);
-  margin-bottom:6px;
-  cursor:pointer;
+  margin-bottom:6px;cursor:pointer;
 }
+.rName{font-family:Impact;text-transform:uppercase}
 
-.rName{
-  font-family:Impact;
-  text-transform:uppercase;
-}
-
-.updates{
-  margin-top:14px;
-  border-top:1px solid rgba(255,255,255,.08);
-  padding-top:10px;
-}
-
+.updates{margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px}
 .updateItem{
-  padding:10px;
-  border-radius:12px;
+  padding:10px;border-radius:12px;
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.03);
   margin-bottom:6px;
 }
+
+/* tiny debug pill (visible on Wix if theme fails) */
+.debug{
+  margin-top:10px;
+  font-size:12px;
+  color:rgba(255,255,255,.75);
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.03);
+  padding:10px 12px;
+  border-radius:12px;
+  display:none;
+}
+.debug.on{display:block}
+.debug b{color:#fff}
 </style>
 </head>
 
@@ -190,6 +168,8 @@ body{
     <div class="teamName" id="pageTitle">Player Development</div>
     <div class="titleLine"></div>
     <div class="sub" id="coachName">Coach</div>
+
+    <div class="debug" id="debugBox"></div>
 
     <div class="grid">
       <div class="card">
@@ -237,53 +217,74 @@ function clean(v){ return String(v || "").trim(); }
 function lower(v){ return String(v || "").toLowerCase().trim(); }
 function safe(s){ return String(s ?? "").replace(/[<>]/g,""); }
 
-function parseMaybeJson(x){
-  if (!x) return null;
-  if (typeof x === "object") return x;
-  if (typeof x === "string"){
-    try { return JSON.parse(x); } catch(_) { return null; }
-  }
-  return null;
+function readCssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-function getQuery(){
-  const p = new URLSearchParams(location.search);
-  const obj = {};
-  for (const [k,v] of p.entries()) obj[k] = v;
-  return obj;
+function showDebug(obj){
+  const box = document.getElementById("debugBox");
+  box.classList.add("on");
+  box.innerHTML = `
+    <div><b>Theme Debug</b></div>
+    <div>source: <b>${safe(obj.source || "unknown")}</b></div>
+    <div>clubSlug: <b>${safe(obj.clubSlug || "")}</b></div>
+    <div>accent: <b>${safe(readCssVar("--accent"))}</b></div>
+    <div>accent2: <b>${safe(readCssVar("--accent2"))}</b></div>
+    <div>glow: <b>${safe(readCssVar("--clubGlow"))}</b></div>
+    <div style="margin-top:6px;opacity:.85">url: ${safe(location.href)}</div>
+  `;
 }
 
-/* ---------- theme fallbacks for all clubs ---------- */
+/* ---------- club theme fallbacks (add all your club slugs here) ---------- */
 const CLUB_THEMES = {
   default:     { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" },
 
   cherrybrook: { accent:"#C8102E", accent2:"#FF4B5C", glow:"rgba(200,16,46,.20)" },
   monmouth:    { accent:"#00E5FF", accent2:"#00A3FF", glow:"rgba(0,229,255,.18)" },
   rumson:      { accent:"#FFFFFF", accent2:"#BDBDBD", glow:"rgba(255,255,255,.10)" },
-
   mds:         { accent:"#7B2EFF", accent2:"#B266FF", glow:"rgba(123,46,255,.18)" }
 };
 
-function applyTheme({ clubSlug, theme }){
+/* ---------- apply theme ---------- */
+function applyTheme({ clubSlug, theme, source }){
   const slug = lower(clubSlug || "default");
-  const fallback = CLUB_THEMES[slug] || CLUB_THEMES.default;
+  const fb = CLUB_THEMES[slug] || CLUB_THEMES.default;
 
   const rawAccent  = theme?.accent  ?? theme?.primary   ?? "";
   const rawAccent2 = theme?.accent2 ?? theme?.secondary ?? "";
   const rawGlow    = theme?.glow    ?? theme?.clubGlow  ?? theme?.bgGlow ?? "";
 
-  const accent  = clean(rawAccent)  || fallback.accent;
-  const accent2 = clean(rawAccent2) || fallback.accent2 || accent;
-  const glow    = clean(rawGlow)    || fallback.glow;
+  const accent  = clean(rawAccent)  || fb.accent;
+  const accent2 = clean(rawAccent2) || fb.accent2 || accent;
+  const glow    = clean(rawGlow)    || fb.glow;
 
   const r = document.documentElement.style;
   r.setProperty("--accent", accent);
   r.setProperty("--accent2", accent2);
   r.setProperty("--clubGlow", glow);
 
-  console.log("🎨 THEME APPLIED:", { slug, accent, accent2, glow });
+  console.log("🎨 THEME APPLIED:", { slug, accent, accent2, glow, source });
+
+  // show debug if it looks like we stayed at default (helps you diagnose instantly)
+  showDebug({ source, clubSlug: slug });
 
   try { window.parent.postMessage({ type:"PLAYER_DEV_THEME_APPLIED", slug, accent, accent2, glow }, "*"); } catch(_) {}
+}
+
+/* ---------- parse HASH theming (best for Wix) ----------
+   We support:
+   #clubSlug=cherrybrook&accent=%23C8102E&accent2=%23FF4B5C&glow=rgba(...)
+*/
+function parseHashParams(){
+  const raw = String(location.hash || "").replace(/^#/, "");
+  if (!raw) return null;
+  const p = new URLSearchParams(raw);
+  const clubSlug = p.get("clubSlug") || p.get("club") || "";
+  const accent = p.get("accent") || p.get("primary") || "";
+  const accent2 = p.get("accent2") || p.get("secondary") || "";
+  const glow = p.get("glow") || p.get("clubGlow") || p.get("bgGlow") || "";
+  const coachName = p.get("coachName") || p.get("coach") || "";
+  return { clubSlug, theme:{ accent, accent2, glow }, coachName };
 }
 
 /* ---------- data ---------- */
@@ -294,12 +295,10 @@ function renderPlayers(list){
   const results = document.getElementById("results");
   results.innerHTML = "";
   const items = Array.isArray(list) ? list : [];
-
   if (!items.length){
     results.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No players</div>`;
     return;
   }
-
   items.slice(0,6).forEach(p => {
     const div = document.createElement("div");
     div.className = "resultItem";
@@ -318,12 +317,10 @@ function renderUpdates(list){
   const el = document.getElementById("updateList");
   el.innerHTML = "";
   const items = Array.isArray(list) ? list : [];
-
   if (!items.length){
     el.innerHTML = `<div style="padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.7);font-size:13px">No updates</div>`;
     return;
   }
-
   items.slice(0,3).forEach(u => {
     const div = document.createElement("div");
     div.className = "updateItem";
@@ -343,72 +340,42 @@ document.getElementById("playerSearch").addEventListener("input", (e) => {
 });
 
 /* buttons */
-document.getElementById("btnEval").onclick = () => {
-  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"evaluation" }, "*"); } catch(_) {}
-};
-document.getElementById("btnIdp").onclick = () => {
-  try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {}
-};
+document.getElementById("btnEval").onclick = () => { try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"evaluation" }, "*"); } catch(_) {} };
+document.getElementById("btnIdp").onclick  = () => { try { window.parent.postMessage({ type:"PLAYER_DEV_NAV", action:"idp" }, "*"); } catch(_) {} };
 
-/* ---------- INIT: URL PARAM THEMING (works even without postMessage) ---------- */
-(function initFromQuery(){
-  const q = getQuery();
-  const clubSlug = q.clubSlug || q.club || "default";
-
-  const theme = {
-    accent:  q.accent  || q.primary  || "",
-    accent2: q.accent2 || q.secondary || "",
-    glow:    q.glow    || q.clubGlow || q.bgGlow || ""
-  };
-
-  const coachName = q.coachName || q.coach || "";
-  if (coachName) document.getElementById("coachName").textContent = coachName;
-
-  applyTheme({ clubSlug, theme });
-
-  // optional seed data via query (rare; but won’t break)
-  if (q.playersJson){
-    const parsed = parseMaybeJson(decodeURIComponent(q.playersJson));
-    if (Array.isArray(parsed)) { PLAYERS = parsed; renderPlayers(PLAYERS); }
+/* ---------- INIT 1: hash params (Wix-safe) ---------- */
+(function initFromHash(){
+  const h = parseHashParams();
+  if (!h) {
+    applyTheme({ clubSlug:"default", theme:{}, source:"default" });
+    return;
   }
-  if (q.updatesJson){
-    const parsed = parseMaybeJson(decodeURIComponent(q.updatesJson));
-    if (Array.isArray(parsed)) { UPDATES = parsed; renderUpdates(UPDATES); }
-  }
+  if (h.coachName) document.getElementById("coachName").textContent = safe(h.coachName);
+  applyTheme({ clubSlug:h.clubSlug, theme:h.theme, source:"hash" });
 })();
 
-/* ---------- INIT: postMessage (Wix HTML Component workflow) ---------- */
+/* ---------- INIT 2: postMessage (Wix HTML component workflow) ---------- */
 window.addEventListener("message", (ev) => {
-  const msg = parseMaybeJson(ev.data) || ev.data;
+  const msg = ev.data;
   if (!msg) return;
 
   if (msg.type === "PLAYER_DEV_INIT"){
-    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme });
-
     if (msg.coachName) document.getElementById("coachName").textContent = safe(msg.coachName);
+    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme || {}, source:"postMessage" });
 
     PLAYERS = Array.isArray(msg.players) ? msg.players : [];
     UPDATES = Array.isArray(msg.updates) ? msg.updates : [];
-
     renderPlayers(PLAYERS);
     renderUpdates(UPDATES);
   }
 
   if (msg.type === "PLAYER_DEV_SET_THEME"){
-    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme });
-  }
-
-  if (msg.type === "PLAYER_DEV_SET_DATA"){
-    if (Array.isArray(msg.players)) PLAYERS = msg.players;
-    if (Array.isArray(msg.updates)) UPDATES = msg.updates;
-    renderPlayers(PLAYERS);
-    renderUpdates(UPDATES);
+    applyTheme({ clubSlug: msg.clubSlug, theme: msg.theme || {}, source:"postMessage" });
   }
 });
 
 /* handshake */
 try { window.parent.postMessage({ type:"PLAYER_DEV_IFRAME_READY" }, "*"); } catch(_) {}
-console.log("✅ IFRAME READY SENT");
 </script>
 </body>
 </html>
