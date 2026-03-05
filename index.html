@@ -166,16 +166,13 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
     <div class="sub" id="sub">Coach</div>
     <div class="themeLine" aria-hidden="true"></div>
 
-    <!-- ✅ Only ONE main card now -->
     <div class="card">
       <div class="hRow">
         <h3 class="hTitle">Search Players</h3>
         <div class="pill accent" id="countPill">0 Players</div>
       </div>
 
-      <div class="meta" id="scopeMeta">
-        Showing players connected to your teams.
-      </div>
+      <div class="meta" id="scopeMeta">Showing players connected to your teams.</div>
 
       <div class="searchWrap">
         <div class="search" role="search">
@@ -194,7 +191,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
       <a class="modBtn" href="javascript:void(0)" id="evalBtn">
         <div class="modTop">
           <h2 class="modTitle">Player Evaluation</h2>
-          <div class="pill accent">Open</div><!-- ✅ changed from "Module" -->
+          <div class="pill accent">Open</div>
         </div>
         <div class="modDesc">
           Capture match & training feedback, technical notes, and key coaching points.
@@ -204,7 +201,7 @@ body{margin:0;background:transparent;color:var(--text);font-family:Arial,sans-se
       <a class="modBtn" href="javascript:void(0)" id="idpBtn">
         <div class="modTop">
           <h2 class="modTitle">Individual Development Plan</h2>
-          <div class="pill accent">Open</div><!-- ✅ changed from "Module" -->
+          <div class="pill accent">Open</div>
         </div>
         <div class="modDesc">
           Set objectives, assign homework, track progress, and review targets over time.
@@ -223,6 +220,7 @@ const CLUB_THEMES = {
 };
 
 function safe(s){ return String(s ?? "").replace(/[<>]/g, ""); }
+function clean(v){ return String(v || "").trim(); }
 
 function applyTheme({ clubSlug, accent, accent2, glow, source }) {
   const slug = String(clubSlug || "default").trim().toLowerCase();
@@ -247,10 +245,34 @@ function setHeader({ clubSlug, coachName }) {
   if ($sub) $sub.textContent = String(coachName || "Coach");
 }
 
+// ✅ Navigate parent Wix site
+function go(path){
+  const p = String(path || "").trim();
+  if (!p) return;
+  try {
+    if (window.parent && window.parent.location) {
+      window.parent.location.href = p;
+      return;
+    }
+  } catch(_) {}
+  // fallback (if parent nav blocked)
+  window.location.href = p;
+}
+
+// Wire buttons
+document.getElementById("evalBtn")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  go("/player-evaluation");
+});
+document.getElementById("idpBtn")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  go("/idp-homepage");
+});
+
 // -------------------------
 // Players state + search
 // -------------------------
-let ALL_PLAYERS = []; // [{ _id, firstName, lastName, name, teamId, teamName }]
+let ALL_PLAYERS = [];
 let FILTERED = [];
 
 const $results = document.getElementById("results");
@@ -263,7 +285,6 @@ function playerDisplayName(p){
   const full = clean(`${p.firstName || ""} ${p.lastName || ""}`.trim());
   return full || clean(p.name) || "Player";
 }
-function clean(v){ return String(v || "").trim(); }
 
 function render(list){
   $results.innerHTML = "";
@@ -271,9 +292,7 @@ function render(list){
 
   if (!list || !list.length){
     $empty.style.display = "block";
-    $empty.textContent = ALL_PLAYERS.length
-      ? "No matches. Try a different name."
-      : "No players found for your teams.";
+    $empty.textContent = ALL_PLAYERS.length ? "No matches. Try a different name." : "No players found for your teams.";
     return;
   }
   $empty.style.display = "none";
@@ -288,7 +307,6 @@ function render(list){
       <div class="rMeta">${safe(meta)}</div>
     `;
 
-    // optional: tell Wix which player was clicked (no navigation yet)
     el.onclick = () => {
       try {
         window.parent.postMessage({ type:"PLAYER_SELECTED", playerId: p._id, teamId: p.teamId }, "*");
@@ -306,12 +324,7 @@ function doSearch(){
     render(FILTERED);
     return;
   }
-
-  const out = ALL_PLAYERS.filter(p => {
-    const nm = playerDisplayName(p).toLowerCase();
-    return nm.includes(q);
-  }).slice(0, 30);
-
+  const out = ALL_PLAYERS.filter(p => playerDisplayName(p).toLowerCase().includes(q)).slice(0, 30);
   FILTERED = out;
   render(FILTERED);
 }
@@ -338,12 +351,11 @@ function bootFromHash(){
 }
 bootFromHash();
 
-// ✅ NEW: theme init listener (from Wix)
+// Listen for Wix init + players
 window.addEventListener("message", (ev) => {
   const data = ev.data;
   if (!data) return;
 
-  // Theme init
   if (data.type === "PLAYER_DEV_INIT") {
     const clubSlug = data.clubSlug || "default";
     const coachName = data.coachName || "Coach";
@@ -355,7 +367,6 @@ window.addEventListener("message", (ev) => {
     return;
   }
 
-  // Players payload
   if (data.type === "PLAYER_DEV_PLAYERS") {
     const players = Array.isArray(data.players) ? data.players : [];
     ALL_PLAYERS = players;
